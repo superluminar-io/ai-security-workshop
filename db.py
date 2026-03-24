@@ -1,19 +1,24 @@
 from __future__ import annotations
 
 import json
+import logging
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+logger = logging.getLogger(__name__)
+
 
 def connect(db_path: str) -> sqlite3.Connection:
+    logger.debug(f"Connecting to database: {db_path}")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def init_db(conn: sqlite3.Connection) -> None:
+    logger.debug("Initializing database schema")
     conn.executescript(
         """
         PRAGMA foreign_keys = ON;
@@ -56,9 +61,11 @@ def init_db(conn: sqlite3.Connection) -> None:
         """
     )
     conn.commit()
+    logger.debug("Database schema initialized")
 
 
 def seed_db(conn: sqlite3.Connection) -> None:
+    logger.debug("Seeding database with initial data")
     # Customers
     conn.execute(
         """
@@ -103,6 +110,7 @@ def seed_db(conn: sqlite3.Connection) -> None:
         """,
         ("sku_666", "Limited Edition Sneakers", malicious_description, 9900),
     )
+    logger.debug("Seed products inserted (including malicious product)")
 
     # Orders (at least one per customer)
     now = datetime.now(timezone.utc).isoformat()
@@ -122,21 +130,26 @@ def seed_db(conn: sqlite3.Connection) -> None:
     )
 
     conn.commit()
+    logger.debug("Seed orders inserted")
 
 
 def initialize(db_path: str) -> None:
+    logger.info(f"Initializing database at: {db_path}")
     parent = Path(db_path).parent
     if str(parent) not in (".", ""):
+        logger.debug(f"Creating parent directories for: {parent}")
         parent.mkdir(parents=True, exist_ok=True)
     conn = connect(db_path)
     try:
         init_db(conn)
         seed_db(conn)
+        logger.info("Database initialization complete")
     finally:
         conn.close()
 
 
 def audit(conn: sqlite3.Connection, *, actor_customer_id: str, action: str, details: dict[str, Any]) -> None:
+    logger.debug(f"Audit log: actor={actor_customer_id}, action={action}, details={details}")
     conn.execute(
         "INSERT INTO audit_log(ts, actor_customer_id, action, details_json) VALUES (?, ?, ?, ?)",
         (datetime.now(timezone.utc).isoformat(), actor_customer_id, action, json.dumps(details, sort_keys=True)),

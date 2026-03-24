@@ -1,0 +1,11 @@
+[project]
+name = "model-deployment"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "botocore>=1.42.62",
+    "dotenv>=0.9.9",
+    "sagemaker<3.0.0",
+]

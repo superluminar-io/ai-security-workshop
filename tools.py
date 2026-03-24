@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any
 
 import db
 import policy
+
+logger = logging.getLogger(__name__)
 
 try:
     from strands import tool
@@ -45,6 +48,7 @@ def search_products(query: str, *, db_path: str | None = None) -> dict[str, Any]
         query: Free-text search string.
         db_path: Optional SQLite path (used by tests).
     """
+    logger.debug(f"search_products called with query: {query}")
     conn = db.connect(_db_path(db_path))
     try:
         like = f"%{query}%"
@@ -59,6 +63,7 @@ def search_products(query: str, *, db_path: str | None = None) -> dict[str, Any]
             (like, like),
         ).fetchall()
         items = [dict(r) for r in rows]
+        logger.debug(f"search_products found {len(items)} products")
         return _ok(f"Found {len(items)} product(s).", items)
     finally:
         conn.close()
@@ -72,11 +77,14 @@ def get_product_details(sku: str, *, db_path: str | None = None) -> dict[str, An
         sku: The product SKU.
         db_path: Optional SQLite path (used by tests).
     """
+    logger.debug(f"get_product_details called for SKU: {sku}")
     conn = db.connect(_db_path(db_path))
     try:
         row = conn.execute("SELECT sku, name, description, price_cents FROM products WHERE sku = ?", (sku,)).fetchone()
         if not row:
+            logger.warning(f"Product not found for SKU: {sku}")
             return _err(f"Unknown SKU: {sku}")
+        logger.debug(f"get_product_details returning details for SKU: {sku}")
         return _ok(f"Details for {sku}.", dict(row))
     finally:
         conn.close()
@@ -88,6 +96,7 @@ def get_customer_profile(actor_customer_id: str, customer_id: str, *, db_path: s
 
     INSECURE BASELINE: does not scope access to the actor; leaks PII.
     """
+    logger.debug(f"get_customer_profile called: actor={actor_customer_id}, target_customer={customer_id}")
     _ = policy.authorize_tool_call(actor_customer_id, "get_customer_profile", {"customer_id": customer_id})
 
     conn = db.connect(_db_path(db_path))
@@ -97,7 +106,9 @@ def get_customer_profile(actor_customer_id: str, customer_id: str, *, db_path: s
             (customer_id,),
         ).fetchone()
         if not row:
+            logger.warning(f"Customer not found: {customer_id}")
             return _err(f"Unknown customer_id: {customer_id}")
+        logger.debug(f"get_customer_profile returning profile for customer: {customer_id}")
         return _ok(f"Profile for {customer_id}.", dict(row))
     finally:
         conn.close()
@@ -115,6 +126,7 @@ def refund_order(
 
     INSECURE BASELINE: refunds any order, any amount, no approvals.
     """
+    logger.debug(f"refund_order called: actor={actor_customer_id}, order={order_id}, amount={refund_cents}")
     _ = policy.authorize_tool_call(
         actor_customer_id, "refund_order", {"order_id": order_id, "refund_cents": refund_cents}
     )
@@ -126,10 +138,12 @@ def refund_order(
             (order_id,),
         ).fetchone()
         if not row:
+            logger.warning(f"Order not found for refund: {order_id}")
             return _err(f"Unknown order_id: {order_id}")
 
         # intentionally minimal + insecure
         new_refunded = int(row["refunded_cents"]) + int(refund_cents)
+        logger.info(f"Processing refund: order={order_id}, amount={refund_cents}, total_refunded={new_refunded}")
         conn.execute(
             "UPDATE orders SET refunded_cents = ?, status = 'refunded' WHERE order_id = ?",
             (new_refunded, order_id),
@@ -143,6 +157,7 @@ def refund_order(
             action="refund_order",
             details={"order_id": order_id, "refund_cents": refund_cents, "new_refunded_cents": new_refunded},
         )
+        logger.debug(f"Refund processed successfully for order: {order_id}")
         return _ok(f"Refunded {refund_cents} cents for {order_id}.", {"order_id": order_id, "refunded_cents": new_refunded})
     finally:
         conn.close()
@@ -160,15 +175,19 @@ def apply_discount(
 
     INSECURE BASELINE: allows extreme discounts (e.g., 90%).
     """
+    logger.debug(f"apply_discount called: actor={actor_customer_id}, order={order_id}, percent={percent}")
     _ = policy.authorize_tool_call(actor_customer_id, "apply_discount", {"order_id": order_id, "percent": percent})
 
     conn = db.connect(_db_path(db_path))
     try:
         row = conn.execute("SELECT order_id FROM orders WHERE order_id = ?", (order_id,)).fetchone()
         if not row:
+            logger.warning(f"Order not found for discount: {order_id}")
             return _err(f"Unknown order_id: {order_id}")
+        logger.info(f"Applying discount: order={order_id}, percent={percent}")
         conn.execute("UPDATE orders SET discount_percent = ? WHERE order_id = ?", (int(percent), order_id))
         conn.commit()
+        logger.debug(f"Discount applied successfully for order: {order_id}")
         return _ok(f"Applied discount {percent}% to {order_id}.", {"order_id": order_id, "percent": int(percent)})
     finally:
         conn.close()
@@ -188,18 +207,21 @@ def send_email(
     INSECURE BASELINE: allows emailing arbitrary external addresses (exfiltration).
     This implementation only logs to the audit table (no real email delivery).
     """
+    logger.debug(f"send_email called: actor={actor_customer_id}, to_email={to_email}, subject={subject}")
     _ = policy.authorize_tool_call(
         actor_customer_id, "send_email", {"to_email": to_email, "subject": subject, "body": body}
     )
 
     conn = db.connect(_db_path(db_path))
     try:
+        logger.info(f"Sending email: to={to_email}, subject={subject}")
         db.audit(
             conn,
             actor_customer_id=actor_customer_id,
             action="send_email",
             details={"to_email": to_email, "subject": subject, "body": body},
         )
+        logger.debug(f"Email queued successfully to: {to_email}")
         return _ok(f"Queued email to {to_email}.", {"to_email": to_email})
     finally:
         conn.close()

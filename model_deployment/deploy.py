@@ -135,7 +135,7 @@ logger.info("Deploying model to SageMaker Inference endpoint")
 # deploy model to SageMaker Inference
 predictor = huggingface_model.deploy(
 	initial_instance_count=1,
-	instance_type="ml.m6g.large",
+	instance_type="ml.g5.xlarge",
 	container_startup_health_check_timeout=900
 )
 logger.info("Model endpoint deployed successfully")

@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from typing import Any
+
+from strands.agent.agent_result import AgentResult
 
 import db
 from prompts import SYSTEM_PROMPT
@@ -16,7 +19,7 @@ ACTOR_CUSTOMER_ID = os.environ.get("ACTOR_CUSTOMER_ID", "cust_001")
 DB_PATH = os.environ.get("ECOMM_DB", "ecomm.sqlite")
 
 # Model ID for LLM mode (Bedrock). Override with STRANDS_MODEL env var if needed.
-MODEL_ID = "eu.amazon.nova-2-lite-v1:0"
+MODEL_ID = "eu.meta.llama3-2-3b-instruct-v1:0"
 
 
 def _print_result(result: dict[str, Any]) -> None:
@@ -104,14 +107,30 @@ def _command_mode() -> None:
 
 def _llm_mode() -> None:
     from strands import Agent  # type: ignore[import-not-found]  # imported only when needed
+    from strands.models.sagemaker import SageMakerAIModel
+
 
     logger.info("Entering LLM mode")
-    model = os.environ.get("STRANDS_MODEL") or MODEL_ID
-    logger.debug(f"Using LLM model: {model}")
+    model_id = os.environ.get("STRANDS_MODEL") or MODEL_ID
+    logger.debug(f"Using LLM model: {model_id}")
+
+    model = SageMakerAIModel(
+        endpoint_config={
+            "endpoint_name": "huggingface-pytorch-tgi-inference-2026-04-08-13-07-06-328",
+            "region_name": "eu-central-1",
+            },
+        payload_config={
+            "max_tokens": 1000,
+            "temperature": 0.7,
+            "stream": True,
+        },
+    )
+
     agent = Agent(
         model=model,
         system_prompt=SYSTEM_PROMPT,
         callback_handler=None,
+
         tools=[
             ecomm_tools.search_products,
             ecomm_tools.get_product_details,
@@ -134,15 +153,31 @@ def _llm_mode() -> None:
             logger.info("User exiting LLM mode")
             break
         logger.debug(f"Processing LLM user input: {raw[:100]}...")
-        result = agent(raw, invocation_state={"actor_customer_id": ACTOR_CUSTOMER_ID, "db_path": DB_PATH})
-        logger.debug(f"Agent returned result with status: {result.get('status', 'unknown')}")
-        # AgentResult has a message with content blocks; print best-effort
-        try:
+        result: AgentResult = agent(raw, invocation_state={"actor_customer_id": ACTOR_CUSTOMER_ID, "db_path": DB_PATH})
+
+        def result_msg(result) -> str:
+            if isinstance(result, str):
+                return result
+            result = result.__dict__ if isinstance(result, AgentResult) else result
+            print(json.dumps(result, indent=2, default=str))
+            print(f"type of arg: {type(result)}, keys: { result.keys()}")
             msg = result["message"]
             content = msg.get("content") or []
-            text = ""
-            if isinstance(content, list) and content and isinstance(content[0], dict):
+            text = msg
+            text=json.dumps(msg)
+            return text
+            if isinstance(content, list) and len(content) > 0 and isinstance(content[0], dict):
                 text = content[0].get("text", "")
+
+            return text
+
+        o = json.dumps(result, default=str, indent=2)
+        with open("last_agent_result.json", "w") as f:
+            f.write(o)
+        logger.debug(f"Agent returned result with status: {json.dumps(result, default=str, indent=2)}")
+        # AgentResult has a message with content blocks; print best-effort
+        try:
+            text = result_msg(result)
             print(text)
         except Exception as e:
             logger.exception("Error processing agent result")

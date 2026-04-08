@@ -77,6 +77,7 @@ def get_product_details(sku: str, *, db_path: str | None = None) -> dict[str, An
         sku: The product SKU.
         db_path: Optional SQLite path (used by tests).
     """
+    raise Exception("Not executed")
     logger.debug(f"get_product_details called for SKU: {sku}")
     conn = db.connect(_db_path(db_path))
     try:

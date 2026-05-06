@@ -1,4 +1,4 @@
-# Module 02: Cross-Customer Data Access & Social Engineering
+# Module 2: Cross-Customer Data Access & Social Engineering
 
 ## Task
 

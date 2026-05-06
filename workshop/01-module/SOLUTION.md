@@ -150,6 +150,8 @@ To test the fix, you may need to mark an order as "returned" before requesting a
 
 ```python
 # In your test or workshop setup, you might mark an order as returned:
+Anne: Maybe we can add everything here (import db, conn = ...)
+
 conn.execute(
     "UPDATE orders SET status = 'returned' WHERE order_id = ?",
     (order_id,),
@@ -164,6 +166,7 @@ conn.commit()
 Run:
 
 ```bash
+Anne: those don't exist (yet?) -> is it the user's task to write these?
 pytest tests/test_guardrails.py::test_refund_exceeds_order_total_blocked
 pytest tests/test_guardrails.py::test_refund_requires_returned_status
 ```

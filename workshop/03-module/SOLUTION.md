@@ -3,7 +3,7 @@
 The vulnerability is that the system allows applying arbitrarily large discounts (e.g., 95%–100%) without any business validation.
 
 ### Goal
-
+Anne: isn't it weird that the customer can apply discounts to their own orders? 
 - A customer may only apply discounts to their own orders.
 - Discount percentage is capped at a reasonable maximum (e.g., 25%).
 - Discounts above a certain threshold (e.g., 15%) require approval.

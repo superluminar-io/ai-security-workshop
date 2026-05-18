@@ -124,6 +124,15 @@ def get_customer_profile(actor_customer_id: str, customer_id: str, *, db_path: s
         conn.close()
 
 
+def get_customer_profile_provider(actor_customer_id: str, customer_id: str, *, db_path: str | None = None) -> dict[str, Any]:
+    """Fetch a customer profile.
+
+    Intended for use with make_tool() so actor_customer_id is injected from
+    the environment rather than exposed as an LLM-controllable parameter.
+    """
+    return get_customer_profile(actor_customer_id, customer_id, db_path=db_path)
+
+
 @tool
 def refund_order(
     actor_customer_id: str,

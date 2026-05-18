@@ -25,13 +25,21 @@ def authorize_tool_call(actor_customer_id: str, tool_name: str, tool_input: dict
     return Decision(allowed=True)
 
 
+def authorize_access(actor_customer_id: str, target_customer_id: str) -> Decision:
+    """Check if actor can access target customer data."""
+    allowed = actor_customer_id == target_customer_id
+    return Decision(
+        allowed=allowed,
+        reason="Actor cannot access other customers' data" if not allowed else "OK",
+    )
+
+
 def allowed_email_recipient(actor_customer_id: str, to_email: str) -> Decision:
-    """Check whether the tool is allowed to email `to_email`.
-
-    INSECURE BASELINE: allow arbitrary external addresses (exfiltration risk).
-    """
-
-    return Decision(allowed=True)
+    """Check whether the actor is allowed to send email."""
+    return Decision(
+        allowed=False,
+        reason="Customers are not authorized to send emails. Contact support if you need assistance.",
+    )
 
 
 def refund_policy(
@@ -41,13 +49,37 @@ def refund_policy(
     *,
     order_customer_id: str | None = None,
     order_total_cents: int | None = None,
+    order_status: str | None = None,
+    order_refunded_cents: int | None = None,
 ) -> Decision:
-    """Decide whether a refund should be allowed.
+    """Decide whether a refund should be allowed."""
 
-    INSECURE BASELINE: allow any refund amount for any order, no approvals.
-    """
+    if actor_customer_id != order_customer_id:
+        return Decision(
+            allowed=False,
+            reason=f"Not authorized to refund order {order_id}",
+        )
 
-    return Decision(allowed=True)
+    if order_status != "returned":
+        return Decision(
+            allowed=False,
+            reason=f"Order {order_id} must be marked as 'returned' before a refund can be issued. Current status: {order_status}",
+        )
+
+    if order_total_cents is None or refund_cents > order_total_cents:
+        return Decision(
+            allowed=False,
+            reason=f"Refund amount ({refund_cents} cents) exceeds order total ({order_total_cents} cents)",
+        )
+
+    total_refunded = (order_refunded_cents or 0) + refund_cents
+    if total_refunded > order_total_cents:
+        return Decision(
+            allowed=False,
+            reason=f"Total refunded amount ({total_refunded} cents) would exceed order total ({order_total_cents} cents)",
+        )
+
+    return Decision(allowed=True, reason="Refund approved")
 
 
 def discount_policy(
@@ -57,10 +89,30 @@ def discount_policy(
     *,
     order_customer_id: str | None = None,
 ) -> Decision:
-    """Decide whether a discount should be allowed.
+    """Decide whether a discount should be allowed."""
 
-    INSECURE BASELINE: allow any discount percentage.
-    """
+    if actor_customer_id != order_customer_id:
+        return Decision(
+            allowed=False,
+            reason=f"Not authorized to apply discount to order {order_id}",
+        )
 
-    return Decision(allowed=True)
+    MAX_DISCOUNT_PERCENT = 25
+    if percent > MAX_DISCOUNT_PERCENT:
+        return Decision(
+            allowed=False,
+            reason=f"Discount {percent}% exceeds maximum allowed discount of {MAX_DISCOUNT_PERCENT}%",
+        )
 
+    if percent < 0:
+        return Decision(allowed=False, reason="Discount percentage cannot be negative")
+
+    APPROVAL_THRESHOLD = 15
+    if percent > APPROVAL_THRESHOLD:
+        return Decision(
+            allowed=True,
+            reason=f"Discount {percent}% approved but requires human review",
+            requires_approval=True,
+        )
+
+    return Decision(allowed=True, reason="Discount approved")

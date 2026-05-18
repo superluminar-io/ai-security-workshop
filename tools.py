@@ -105,14 +105,11 @@ def get_product_details(sku: str, *, db_path: str | None = None) -> dict[str, An
 
 
 @tool
-def get_customer_profile(actor_id: str, customer_id: str, *, db_path: str | None = None) -> dict[str, Any]:
-    """Fetch a customer profile.
-
-    INSECURE BASELINE: does not scope access to the actor; leaks PII.
-    """
-    d = policy.authorize_tool_call(actor_id, "get_customer_profile", {"customer_id": customer_id})
-    if not d.allowed:
-        return _err("not for you")
+def get_customer_profile(actor_customer_id: str, customer_id: str, *, db_path: str | None = None) -> dict[str, Any]:
+    """Fetch a customer profile."""
+    decision = policy.authorize_access(actor_customer_id, customer_id)
+    if not decision.allowed:
+        return _err(decision.reason)
 
     conn = db.connect(_db_path(db_path))
     try:
@@ -135,14 +132,7 @@ def refund_order(
     *,
     db_path: str | None = None,
 ) -> dict[str, Any]:
-    """Issue a refund for an order.
-
-    INSECURE BASELINE: refunds any order, any amount, no approvals.
-    """
-    _ = policy.authorize_tool_call(
-        actor_customer_id, "refund_order", {"order_id": order_id, "refund_cents": refund_cents}
-    )
-
+    """Issue a refund for an order."""
     conn = db.connect(_db_path(db_path))
     try:
         row = conn.execute(
@@ -152,15 +142,26 @@ def refund_order(
         if not row:
             return _err(f"Unknown order_id: {order_id}")
 
-        # intentionally minimal + insecure
+        decision = policy.refund_policy(
+            actor_customer_id,
+            order_id,
+            refund_cents,
+            order_customer_id=row["customer_id"],
+            order_total_cents=row["total_cents"],
+            order_status=row["status"],
+            order_refunded_cents=row["refunded_cents"],
+        )
+
+        if not decision.allowed:
+            return _err(decision.reason)
+
         new_refunded = int(row["refunded_cents"]) + int(refund_cents)
         conn.execute(
-            "UPDATE orders SET refunded_cents = ?, status = 'refunded' WHERE order_id = ?",
+            "UPDATE orders SET refunded_cents = ? WHERE order_id = ?",
             (new_refunded, order_id),
         )
         conn.commit()
 
-        # inconsistent audit: we log refunds, but without any approvals or redaction
         db.audit(
             conn,
             actor_customer_id=actor_customer_id,
@@ -180,20 +181,41 @@ def apply_discount(
     *,
     db_path: str | None = None,
 ) -> dict[str, Any]:
-    """Apply a discount percent to an order.
-
-    INSECURE BASELINE: allows extreme discounts (e.g., 90%).
-    """
-    _ = policy.authorize_tool_call(actor_customer_id, "apply_discount", {"order_id": order_id, "percent": percent})
-
+    """Apply a discount percent to an order."""
     conn = db.connect(_db_path(db_path))
     try:
-        row = conn.execute("SELECT order_id FROM orders WHERE order_id = ?", (order_id,)).fetchone()
+        row = conn.execute(
+            "SELECT order_id, customer_id FROM orders WHERE order_id = ?",
+            (order_id,),
+        ).fetchone()
         if not row:
             return _err(f"Unknown order_id: {order_id}")
+
+        decision = policy.discount_policy(
+            actor_customer_id,
+            order_id,
+            percent,
+            order_customer_id=row["customer_id"],
+        )
+
+        if not decision.allowed:
+            return _err(decision.reason)
+
         conn.execute("UPDATE orders SET discount_percent = ? WHERE order_id = ?", (int(percent), order_id))
         conn.commit()
-        return _ok(f"Applied discount {percent}% to {order_id}.", {"order_id": order_id, "percent": int(percent)})
+
+        db.audit(
+            conn,
+            actor_customer_id=actor_customer_id,
+            action="apply_discount",
+            details={"order_id": order_id, "percent": int(percent), "requires_approval": decision.requires_approval},
+        )
+
+        msg = f"Applied discount {percent}% to {order_id}."
+        if decision.requires_approval:
+            msg += " (This discount has been flagged for human review.)"
+
+        return _ok(msg, {"order_id": order_id, "percent": int(percent), "flagged": decision.requires_approval})
     finally:
         conn.close()
 
@@ -207,14 +229,10 @@ def send_email(
     *,
     db_path: str | None = None,
 ) -> dict[str, Any]:
-    """Send an email.
-
-    INSECURE BASELINE: allows emailing arbitrary external addresses (exfiltration).
-    This implementation only logs to the audit table (no real email delivery).
-    """
-    _ = policy.authorize_tool_call(
-        actor_customer_id, "send_email", {"to_email": to_email, "subject": subject, "body": body}
-    )
+    """Send an email."""
+    decision = policy.allowed_email_recipient(actor_customer_id, to_email)
+    if not decision.allowed:
+        return _err(decision.reason)
 
     conn = db.connect(_db_path(db_path))
     try:
@@ -222,7 +240,7 @@ def send_email(
             conn,
             actor_customer_id=actor_customer_id,
             action="send_email",
-            details={"to_email": to_email, "subject": subject, "body": body},
+            details={"to_email": to_email, "subject": subject},
         )
         return _ok(f"Queued email to {to_email}.", {"to_email": to_email})
     finally:
@@ -238,7 +256,6 @@ def list_orders(actor_customer_id: str, customer_id: str | None = None, *, db_pa
         customer_id: The customer ID to list orders for (defaults to actor_customer_id).
         db_path: Optional SQLite path (used by tests).
     """
-    # If no customer_id specified, use the actor's own ID
     if customer_id is None:
         customer_id = actor_customer_id
 
@@ -263,4 +280,3 @@ def list_orders(actor_customer_id: str, customer_id: str | None = None, *, db_pa
         return _ok(f"Found {len(orders)} order(s) for customer {customer_id}.", orders)
     finally:
         conn.close()
-

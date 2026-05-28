@@ -142,10 +142,10 @@ AWS_PROFILE=ai-workshop pytest -q
 You should see output like:
 
 ```
-FAILED tests/test_guardrails.py::test_pii_scoping_blocks_other_customer
-FAILED tests/test_guardrails.py::test_refund_blocks_other_customers_order
+FAILED tests/test_authorization.py::test_refund_blocks_other_customers_order
+FAILED tests/test_authorization.py::test_pii_scoping_blocks_other_customer
 ...
-6 failed in 0.XXs
+16 failed, 10 passed in 0.XXs
 ```
 
 **Failing tests are expected at this point.** The tests encode the secure behavior you will implement during the workshop. If the tests run (even if they fail), your environment is set up correctly.

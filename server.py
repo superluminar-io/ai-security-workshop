@@ -7,14 +7,11 @@ from typing import Any
 from flask import Flask, render_template, request, jsonify
 
 import db
-from prompts import SYSTEM_PROMPT
-import tools as ecomm_tools
 
 app = Flask(__name__, template_folder="templates")
 
 ACTOR_CUSTOMER_ID = os.environ.get("ACTOR_CUSTOMER_ID", "cust_001")
 DB_PATH = os.environ.get("ECOMM_DB", "ecomm.sqlite")
-MODEL_ID = "eu.amazon.nova-2-lite-v1:0"
 PORT = int(os.environ.get("PORT", 5000))
 
 # Global agent instance
@@ -25,24 +22,9 @@ def _get_agent():
     global _agent
     if _agent is None:
         try:
-            from strands import Agent  # type: ignore[import-not-found]
+            from agent_setup import build_agent
 
-            model = os.environ.get("STRANDS_MODEL") or MODEL_ID
-            _agent = Agent(
-                model=model,
-                system_prompt=SYSTEM_PROMPT,
-                callback_handler=None,
-                tools=[
-                    ecomm_tools.search_products,
-                    ecomm_tools.list_products,
-                    ecomm_tools.get_product_details,
-                    ecomm_tools.get_customer_profile,
-                    ecomm_tools.list_orders,
-                    ecomm_tools.refund_order,
-                    ecomm_tools.apply_discount,
-                    ecomm_tools.send_email,
-                ],
-            )
+            _agent = build_agent()
         except Exception as e:
             raise RuntimeError(f"Failed to initialize agent: {e}")
     return _agent

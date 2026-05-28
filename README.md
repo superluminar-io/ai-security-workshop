@@ -177,7 +177,8 @@ Then open [http://localhost:8080](http://localhost:8080) instead.
 | Start web UI | `AWS_PROFILE=ai-workshop python server.py` |
 | Start CLI (LLM mode) | `AWS_PROFILE=ai-workshop python app.py` |
 | Start CLI (no LLM) | `ENABLE_LLM=0 python app.py` |
-| Run tests | `AWS_PROFILE=ai-workshop pytest -q` |
+| Run injection harness | `AWS_PROFILE=ai-workshop python attack_runner.py --trials 30` |
+| Run tests (no AWS needed) | `pytest -q` |
 | Reset database | `python reset_db.py` |
 
 ## Troubleshooting
@@ -200,11 +201,15 @@ There is a difference between a test *failing* (assertion not met — expected) 
 ## Repository tour
 
 - `app.py`: CLI entrypoint (optionally uses a Strands `Agent`)
+- `agent_setup.py`: builds the agent + model (attaches a Bedrock Guardrail when configured)
 - `server.py`: Web server with Flask (serves chat UI on http://localhost:5000)
+- `attack_runner.py`: runs a prompt-injection attack N times; reports attempted vs harmed
 - `reset_db.py`: Script to reset the database to initial state
 - `db.py`: SQLite schema + seed data (includes a malicious product description with prompt injection)
-- `tools.py`: Strands tools (intentionally vulnerable)
-- `policy.py`: policy abstraction (exists but initially permissive / unused)
-- `prompts.py`: deliberately unsafe system prompt
+- `tools.py`: Strands tools — trusted cores + LLM-facing wrappers (identity bound from the session)
+- `policy.py`: deterministic authorization decisions
+- `policy_cedar.py` + `cedar/`: Cedar (PBAC) authorization engine that `policy.py` delegates to
+- `prompts.py`: system prompt
 - `templates/`: HTML templates for the web interface
-- `tests/test_guardrails.py`: target secure behavior (fails initially)
+- `tests/`: per-module boundary tests (identity, authorization, blast-radius, detection, red-team); no AWS required
+- `workshop/`: the guided modules — start at [workshop/README.md](workshop/README.md)

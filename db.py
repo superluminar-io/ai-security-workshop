@@ -143,3 +143,26 @@ def audit(conn: sqlite3.Connection, *, actor_customer_id: str, action: str, deta
     )
     conn.commit()
 
+
+def count_recent_actions(
+    conn: sqlite3.Connection,
+    actor_customer_id: str,
+    action: str,
+    *,
+    within_seconds: int = 3600,
+) -> int:
+    """Count an actor's recent occurrences of an action in the audit log.
+
+    Module 5 (detection): a cheap anomaly signal. You cannot prevent every
+    slipped-through action against a non-deterministic agent, so you watch for
+    abnormal volume (e.g. a burst of refunds) and alert on it.
+    """
+    from datetime import timedelta
+
+    cutoff = (datetime.now(timezone.utc) - timedelta(seconds=within_seconds)).isoformat()
+    row = conn.execute(
+        "SELECT COUNT(*) AS n FROM audit_log WHERE actor_customer_id = ? AND action = ? AND ts >= ?",
+        (actor_customer_id, action, cutoff),
+    ).fetchone()
+    return int(row["n"])
+

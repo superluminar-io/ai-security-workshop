@@ -5,15 +5,11 @@ import os
 from typing import Any
 
 import db
-from prompts import SYSTEM_PROMPT
 
 import tools as ecomm_tools
 
 ACTOR_CUSTOMER_ID = os.environ.get("ACTOR_CUSTOMER_ID", "cust_001")
 DB_PATH = os.environ.get("ECOMM_DB", "ecomm.sqlite")
-
-# Model ID for LLM mode (Bedrock). Override with STRANDS_MODEL env var if needed.
-MODEL_ID = "eu.amazon.nova-2-lite-v1:0"
 
 
 def _print_result(result: dict[str, Any]) -> None:
@@ -67,8 +63,13 @@ def _command_mode() -> None:
                 parts = raw.split()
                 if len(parts) != 3:
                     raise ValueError("Usage: refund <order_id> <refund_cents>")
+                # The operator typed this command directly, so the human-approval
+                # requirement is satisfied here. An agent invoking the tool gets
+                # no such token unless a human approves out-of-band.
                 _print_result(
-                    ecomm_tools.refund_order(ACTOR_CUSTOMER_ID, parts[1], int(parts[2]), db_path=DB_PATH)
+                    ecomm_tools.refund_order(
+                        ACTOR_CUSTOMER_ID, parts[1], int(parts[2]), db_path=DB_PATH, approval_token="cli-operator"
+                    )
                 )
             elif raw.startswith("discount "):
                 parts = raw.split()
@@ -94,24 +95,9 @@ def _command_mode() -> None:
 
 
 def _llm_mode() -> None:
-    from strands import Agent  # type: ignore[import-not-found]  # imported only when needed
+    from agent_setup import build_agent  # imported only when needed
 
-    model = os.environ.get("STRANDS_MODEL") or MODEL_ID
-    agent = Agent(
-        model=model,
-        system_prompt=SYSTEM_PROMPT,
-        callback_handler=None,
-        tools=[
-            ecomm_tools.search_products,
-            ecomm_tools.list_products,
-            ecomm_tools.get_product_details,
-            ecomm_tools.get_customer_profile,
-            ecomm_tools.list_orders,
-            ecomm_tools.refund_order,
-            ecomm_tools.apply_discount,
-            ecomm_tools.send_email,
-        ],
-    )
+    agent = build_agent()
 
     print("LLM mode enabled. Type messages; `quit` to exit.")
     print(f"Logged in as: {ACTOR_CUSTOMER_ID}")

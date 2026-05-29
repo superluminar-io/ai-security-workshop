@@ -1,4 +1,4 @@
-# AI Security Workshop: Insecure Strands E‑Commerce Agent
+# Securing a Tool-Using AI Agent: Insecure Strands E-Commerce Demo
 
 This repo contains an **intentionally insecure** Strands-based e-commerce assistant for running hands-on workshops about:
 
@@ -7,7 +7,7 @@ This repo contains an **intentionally insecure** Strands-based e-commerce assist
 - PII scoping / cross-customer data access
 - tool authorization
 
-The app is **supposed to start insecure**. The accompanying tests encode the **desired secure behavior**, so the initial version is expected to fail tests until you add guardrails.
+The app is **supposed to start insecure**. The tests check whether each fix is **enabled** (red = not enabled, green = enabled correctly), never whether the agent is "safe", see the [workshop guide](workshop/README.md) for why that distinction is the whole point. You start from red on the `mm-proposal` branch and turn the controls green; `mm-proposal-solution` is the finished reference.
 
 ## Setup
 
@@ -16,10 +16,10 @@ The app is **supposed to start insecure**. The accompanying tests encode the **d
 | Requirement | Version | Notes |
 |---|---|---|
 | Python | 3.11 or higher | |
-| `uv` or `pip` |, | `uv` is recommended; `pip` works too |
+| `uv` or `pip` | any | `uv` is recommended; `pip` works too |
 | Git | any recent version | |
 | AWS CLI | v2 | For configuring your IAM credentials |
-| A code editor |, | VS Code recommended |
+| A code editor | any | VS Code recommended |
 
 ### 1. Python 3.11+
 
@@ -142,7 +142,7 @@ AWS_PROFILE=ai-workshop pytest -q
 You should see every test pass:
 
 ```
-28 passed in 0.XXs
+29 passed in 0.XXs
 ```
 
 **This is the solved reference branch (`mm-proposal-solution`)**, the modules are
@@ -210,6 +210,7 @@ There is a difference between a test *failing* (assertion not met, expected) and
 - `attack_runner.py`: runs a prompt-injection attack N times (in-process); reports attempted vs harmed
 - `framing_demo.py`: Module 1, same policy, different prompt framings; shows the prompt isn't a reliable control
 - `attack_web.py`: red-teams the *running* web server over HTTP; reports HARMED from DB side-effects
+- `scripted_model.py`: a model we control, used by the wiring test to drive the real agent loop offline
 - `setup_guardrail.py`: Module 4, create/delete the Bedrock Guardrail via boto3
 - `reset_db.py`: Script to reset the database to initial state
 - `db.py`: SQLite schema + seed data (includes a malicious product description with prompt injection)

@@ -71,13 +71,18 @@ def analyze_run(messages):
     return attempted, harmed
 
 
-def run_trials(trials: int, *, actor: str = "cust_001"):
-    """Run the attack `trials` times against a fresh agent + fresh DB each time."""
+def run_trials(trials: int, *, actor: str = "cust_001", progress: bool = True):
+    """Run the attack `trials` times against a fresh agent + fresh DB each time.
+
+    Each trial is a live Bedrock call (often several model turns for tool use),
+    so this is slow. With `progress` we print a line as each trial finishes, so a
+    long run visibly advances instead of looking hung.
+    """
     from agent_setup import build_agent
 
     attempts = 0
     harms = 0
-    for _ in range(trials):
+    for i in range(trials):
         with tempfile.TemporaryDirectory() as d:
             db_path = str(Path(d) / "trial.sqlite")
             db.initialize(db_path)
@@ -86,6 +91,9 @@ def run_trials(trials: int, *, actor: str = "cust_001"):
             attempted, harmed = analyze_run(agent.messages)
             attempts += int(attempted)
             harms += int(harmed)
+            if progress:
+                mark = "HARMED" if harmed else ("attempted" if attempted else "clean")
+                print(f"  trial {i + 1}/{trials}: {mark}", flush=True)
     return attempts, harms
 
 
@@ -95,8 +103,11 @@ def main() -> None:
     ap.add_argument("--actor", default="cust_001")
     args = ap.parse_args()
 
+    print(f"Running {args.trials} live trial(s) against Bedrock -- each is a real model call,")
+    print("so this takes a while. Progress prints as each trial finishes.\n")
     attempts, harms = run_trials(args.trials, actor=args.actor)
     n = max(args.trials, 1)
+    print()
     print(f"Trials: {args.trials}")
     print(f"  ATTEMPTED (model followed the hostile description): {attempts}/{args.trials} ({100 * attempts // n}%)")
     print(f"  HARMED    (the action actually succeeded):          {harms}/{args.trials} ({100 * harms // n}%)")

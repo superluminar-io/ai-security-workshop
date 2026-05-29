@@ -59,7 +59,7 @@ def _extract_text(result: Any) -> str:
             return content[0].get("text", "")
     except Exception as exc:
         logger.warning("Failed to extract text from agent result: %s", exc)
-    return str(result)
+    return ""
 
 
 def _handle(payload: dict) -> dict:

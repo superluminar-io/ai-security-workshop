@@ -57,6 +57,7 @@ def chat():
             runtimeSessionId=session_id,
             payload=payload,
             qualifier="DEFAULT",
+            contentType="application/json",
         )
 
         body = json.loads(response["response"].read())
@@ -75,6 +76,9 @@ def health():
 
 
 def main():
+    if not os.environ.get("AGENTCORE_RUNTIME_ARN"):
+        raise SystemExit("AGENTCORE_RUNTIME_ARN environment variable is required.\n"
+                         "Run: AGENTCORE_RUNTIME_ARN=<arn> python server.py")
     db.initialize(DB_PATH)
     print("Starting chat server...")
     print(f"Logged in as: {ACTOR_CUSTOMER_ID}")

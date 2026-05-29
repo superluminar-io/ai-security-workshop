@@ -224,7 +224,7 @@ There is a difference between a test *failing* (assertion not met — expected) 
 
 ## Repository tour
 
-- `app.py`: CLI entrypoint (optionally uses a Strands `Agent`)
+- `app.py`: CLI entrypoint (command mode only — direct tool calls, no LLM)
 - `server.py`: Web server with Flask (serves chat UI on http://localhost:5000)
 - `reset_db.py`: Script to reset the database to initial state
 - `db.py`: SQLite schema + seed data (includes a malicious product description with prompt injection)

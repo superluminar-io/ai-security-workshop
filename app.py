@@ -5,15 +5,10 @@ import os
 from typing import Any
 
 import db
-from prompts import SYSTEM_PROMPT
-
 import tools as ecomm_tools
 
 ACTOR_CUSTOMER_ID = os.environ.get("ACTOR_CUSTOMER_ID", "cust_001")
 DB_PATH = os.environ.get("ECOMM_DB", "ecomm.sqlite")
-
-# Model ID for LLM mode (Bedrock). Override with STRANDS_MODEL env var if needed.
-MODEL_ID = "eu.amazon.nova-2-lite-v1:0"
 
 
 def _print_result(result: dict[str, Any]) -> None:
@@ -28,7 +23,7 @@ def _print_result(result: dict[str, Any]) -> None:
 
 
 def _command_mode() -> None:
-    print("Insecure e-commerce assistant (workshop baseline)")
+    print("Insecure e-commerce assistant (command mode)")
     print(f"DB: {DB_PATH}")
     print(f"Logged in as: {ACTOR_CUSTOMER_ID}")
     print("")
@@ -93,68 +88,10 @@ def _command_mode() -> None:
             print(f"[error] {type(e).__name__}: {e}")
 
 
-def _llm_mode() -> None:
-    from strands import Agent  # type: ignore[import-not-found]  # imported only when needed
-    from strands.models import BedrockModel  # type: ignore[import-not-found]
-
-    model = BedrockModel(
-        model_id=os.environ.get("STRANDS_MODEL") or MODEL_ID,
-        max_tokens=3000,
-    )
-    agent = Agent(
-        model=model,
-        system_prompt=SYSTEM_PROMPT,
-        callback_handler=None,
-        tools=[
-            ecomm_tools.search_products,
-            ecomm_tools.list_products,
-            ecomm_tools.get_product_details,
-            ecomm_tools.get_customer_profile,
-            ecomm_tools.list_orders,
-            ecomm_tools.refund_order,
-            ecomm_tools.apply_discount,
-            ecomm_tools.send_email,
-        ],
-    )
-
-    print("LLM mode enabled. Type messages; `quit` to exit.")
-    print(f"Logged in as: {ACTOR_CUSTOMER_ID}")
-    print("")
-    while True:
-        raw = input("> ").strip()
-        if not raw:
-            continue
-        if raw in {"q", "quit", "exit"}:
-            break
-        result = agent(raw, invocation_state={"actor_customer_id": ACTOR_CUSTOMER_ID, "db_path": DB_PATH})
-        # AgentResult has a message with content blocks; print best-effort
-        try:
-            msg = result["message"]
-            content = msg.get("content") or []
-            text = ""
-            if isinstance(content, list) and content and isinstance(content[0], dict):
-                text = content[0].get("text", "")
-            print(text)
-        except Exception:
-            print(result)
-
-
 def main() -> None:
     db.initialize(DB_PATH)
-    # Default to LLM mode, but allow opting out.
-    if os.environ.get("ENABLE_LLM") != "0":
-        try:
-            _llm_mode()
-            return
-        except Exception as e:
-            print(
-                f"[warn] LLM mode unavailable ({type(e).__name__}: {e}). "
-                "Falling back to command mode. "
-                "Set ENABLE_LLM=0 to skip trying LLM mode.\n"
-            )
     _command_mode()
 
 
 if __name__ == "__main__":
     main()
-

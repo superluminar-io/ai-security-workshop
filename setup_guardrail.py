@@ -1,15 +1,11 @@
 """Create (or delete) the Module 4 Bedrock Guardrail via boto3.
 
-Module 4 needs a guardrail to attach to the agent. This creates a realistic one
--- a prompt-attack (injection/jailbreak) filter plus PII redaction -- and prints
-the env vars to export.
+Module 4 attaches a guardrail to the agent. This script creates one configured
+for the workshop -- a prompt-attack (injection/jailbreak) filter and PII
+redaction -- waits for it to become READY, and prints the two environment
+variables to export.
 
-Note what it deliberately does NOT include: a "deny refunds/discounts" topic.
-That would be the wrong control twice over -- it breaks the app's legitimate job
-(authorized customers *do* get refunds), and you cannot topic-filter your way out
-of an authorization problem. This is a *probabilistic* Layer-2 control; it only
-shifts the odds, and only for what its classifiers recognize. The deterministic
-boundary (Modules 2-3) is what actually stops harm.
+See workshop/04-guardrails/ for what this guardrail does and does not protect.
 
     AWS_PROFILE=ai-workshop python setup_guardrail.py            # create (or reuse)
     AWS_PROFILE=ai-workshop python setup_guardrail.py --delete   # tear down

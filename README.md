@@ -139,16 +139,17 @@ Then run the test suite:
 AWS_PROFILE=ai-workshop pytest -q
 ```
 
-You should see output like:
+You should see every test pass:
 
 ```
-FAILED tests/test_guardrails.py::test_pii_scoping_blocks_other_customer
-FAILED tests/test_guardrails.py::test_refund_blocks_other_customers_order
-...
-6 failed in 0.XXs
+28 passed in 0.XXs
 ```
 
-**Failing tests are expected at this point.** The tests encode the secure behavior you will implement during the workshop. If the tests run (even if they fail), your environment is set up correctly.
+**This is the solved reference branch (`mm-proposal-solution`)** — the modules are
+already implemented, so the suite is green. If the tests run at all, your
+environment is set up correctly. To work through the workshop from the broken
+starting point (where these tests fail until you implement each module), check
+out the `mm-proposal` branch instead.
 
 ### 7. Start the web interface
 

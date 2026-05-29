@@ -6,7 +6,7 @@ it the way agents actually need securing.
 ## The premise (for facilitators)
 
 Open in character: we are proud AI-disciples who shipped an agent without writing
-a line of code — pure vibe-coding, works like a charm. Let the audience play with
+a line of code, pure vibe-coding, works like a charm. Let the audience play with
 it and grow sceptical. Then reveal, hands-on, how it actually behaves.
 
 ## The thesis
@@ -24,11 +24,11 @@ tool's authority:
 
 ## The three layers
 
-1. **Deterministic boundary** — holds for every model output: identity binding,
+1. **Deterministic boundary**, holds for every model output: identity binding,
    authorization, allowlist, human-in-the-loop, Cedar.
-2. **Probabilistic mitigation** — shifts the odds, never relied upon: prompt
+2. **Probabilistic mitigation**, shifts the odds, never relied upon: prompt
    hardening, Bedrock Guardrails.
-3. **Detection & blast-radius** — bounds and reveals the misses: audit, anomaly,
+3. **Detection & blast-radius**, bounds and reveals the misses: audit, anomaly,
    caps.
 
 See [OUTLINE.md](OUTLINE.md) for the full rationale.
@@ -37,14 +37,14 @@ See [OUTLINE.md](OUTLINE.md) for the full rationale.
 
 | # | Module | Layer |
 |---|--------|-------|
-| 0 | [Explore — the non-deterministic confused deputy](00-explore/README.md) | — |
+| 0 | [Explore, the non-deterministic confused deputy](00-explore/README.md) |, |
 | 1 | [The prompt is not a boundary](01-prompt-not-a-boundary/README.md) | 2 |
 | 2 | [The identity boundary](02-identity/README.md) | 1 (keystone) |
 | 3 | [Deterministic authorization](03-authorization/README.md) | 1 |
 | 4 | [Probabilistic mitigations (Bedrock Guardrails)](04-guardrails/README.md) | 2 |
 | 5 | [Detection & blast-radius](05-detection/README.md) | 3 |
 | 6 | [Externalize authorization with Cedar](06-cedar/README.md) | 1 |
-| 7 | [Red-team the hardened agent (capstone)](07-red-team/README.md) | — |
+| 7 | [Red-team the hardened agent (capstone)](07-red-team/README.md) |, |
 
 Each module has a `README.md` (explore + task) and a `SOLUTION.md` (the fix and
 why it works).

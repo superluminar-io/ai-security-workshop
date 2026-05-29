@@ -1,6 +1,6 @@
 """Module 1 demo: the prompt is not a control surface you can reason about.
 
-Holds the *authorization policy fixed* — the same two rules in every run — and
+Holds the *authorization policy fixed*, the same two rules in every run, and
 varies only the *framing* of the system prompt around them. Then it runs the
 direct attack (refund + exfiltrate, from attack_runner) N times under each
 framing and reports how often harm actually landed.

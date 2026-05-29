@@ -1,14 +1,14 @@
 # Module 6: Externalize Authorization with Cedar
 
-> Layer 1, leveled up. Do Modules 2–3 first — you hand-roll the decisions there
+> Layer 1, leveled up. Do Modules 2-3 first; you hand-roll the decisions there
 > so the principle lands before you move it into an engine. By the end of this
 > module Cedar is the authorization engine the app actually uses.
 
 ## Why
 
 The hand-rolled checks in `policy.py` are correct, but in production you usually
-want authorization expressed as **declarative data** — policy you can read,
-review, version, and change without redeploying application logic — evaluated by
+want authorization expressed as **declarative data**, policy you can read,
+review, version, and change without redeploying application logic, evaluated by
 a dedicated **engine** that runs entirely outside the model *and* outside your
 business code.
 
@@ -19,12 +19,12 @@ service around it), and the same pattern maps directly to **OPA/Rego**,
 authorization to a policy engine; Cedar is one implementation."
 
 This is still Layer 1: a deterministic decision, independent of the model. We are
-not changing *what* is decided — we are moving *where* it is expressed.
+not changing *what* is decided; we are moving *where* it is expressed.
 
 ## Task
 
-1. Read `cedar/policies.cedar` — the ownership rules from Module 3, now as policy.
-2. Look at `policy_cedar.py` — it builds a Cedar request (principal / action /
+1. Read `cedar/policies.cedar`, the ownership rules from Module 3, now as policy.
+2. Look at `policy_cedar.py`: it builds a Cedar request (principal / action /
    resource / context + entities) and asks the engine for a decision.
 3. Make `policy.py` delegate its ownership / data-access decisions to
    `policy_cedar` instead of hand-rolled `if` checks.
@@ -44,7 +44,7 @@ installs it), so this is part of the running app, not a bolt-on.
 <summary>Hint 1</summary>
 
 A Cedar decision needs four things: a principal, an action, a resource, and the
-entities (with their attributes — e.g. an Order's `owner`). The policy then says
+entities (with their attributes, e.g. an Order's `owner`). The policy then says
 `when { resource.owner == principal }`.
 
 </details>
@@ -64,7 +64,7 @@ the decision, not its position in the architecture.
 
 Cedar (here) covers ownership/access. The irreversibility approval (HITL), the
 email allowlist, and the blast-radius caps can also be modeled in Cedar via
-`context` conditions — but they are equally fine as code. The lesson is the
+`context` conditions, but they are equally fine as code. The lesson is the
 *shape*: declarative, externalized, deterministic authorization.
 
 ## Questions to Explore

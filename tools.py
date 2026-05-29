@@ -47,7 +47,7 @@ def _err(text: str, data: Any | None = None) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Module 2 — the identity boundary.
+# Module 2, the identity boundary.
 #
 # There are two kinds of function below:
 #
@@ -60,7 +60,7 @@ def _err(text: str, data: Any | None = None) -> dict[str, Any]:
 #   * LLM-facing wrappers (`*_tool`) are the ONLY functions registered with the
 #     agent. They expose just the business parameters and read identity from the
 #     authenticated session via `tool_context.invocation_state`. The model never
-#     sees an actor field, so it cannot assert or change who it is acting for —
+#     sees an actor field, so it cannot assert or change who it is acting for, 
 #     not by being asked nicely, and not via prompt injection.
 #
 # This is the difference between an agent and a button: a button gets identity

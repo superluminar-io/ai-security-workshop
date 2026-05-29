@@ -25,7 +25,7 @@ def discount_policy(...):
 ## Step 2: Complete the audit trail (`tools.py`)
 
 `db.audit(...)` was called for refunds and emails but not discounts or profile
-reads. Make it consistent — every sensitive action, including reads of PII:
+reads. Make it consistent, every sensitive action, including reads of PII:
 
 ```python
 # in apply_discount, after the update
@@ -49,7 +49,7 @@ def count_recent_actions(conn, actor_customer_id, action, *, within_seconds=3600
     return int(row["n"])
 ```
 
-This does not block anything — it makes volume visible so a monitor can alert.
+This does not block anything, it makes volume visible so a monitor can alert.
 That is deliberate: Layer 3 is detection, not prevention.
 
 ---

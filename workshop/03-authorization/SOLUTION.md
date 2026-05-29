@@ -1,7 +1,7 @@
 # Solution: Authorize every action outside the model
 
-The principle: the model proposes an action; a deterministic policy — running in
-plain Python, against the session-bound identity from Module 2 — decides whether
+The principle: the model proposes an action; a deterministic policy, running in
+plain Python, against the session-bound identity from Module 2, decides whether
 it is allowed. The decision holds for every possible model output.
 
 ---
@@ -9,7 +9,7 @@ it is allowed. The decision holds for every possible model output.
 ## Step 1: Give the policies teeth (`policy.py`)
 
 Replace the permissive stubs with real decisions. (The generic, always-allow
-`authorize_tool_call` is deleted — an unused permissive gate is worse than none.)
+`authorize_tool_call` is deleted, an unused permissive gate is worse than none.)
 
 ```python
 ALLOWED_EMAIL_DOMAINS = frozenset({"example.com"})
@@ -38,7 +38,7 @@ def allowed_email_recipient(actor_customer_id, to_email) -> Decision:
 ```
 
 The amount cap (`refund_cents <= order_total_cents`) and the discount cap are
-deliberately **not** here — they are blast-radius hygiene and belong to Module 5.
+deliberately **not** here, they are blast-radius hygiene and belong to Module 5.
 That is why `tests/test_blast_radius.py` still fails after this module.
 
 ## Step 2: Enforce the policies in the tool cores (`tools.py`)
@@ -69,7 +69,7 @@ owner and uses `discount_policy`; `send_email` uses `allowed_email_recipient`.
 
 ## Step 3: Thread the approval token from the session, never the model
 
-The refund tool reads the approval token the same way it reads identity — from
+The refund tool reads the approval token the same way it reads identity, from
 the session, where only the application (a human approving out-of-band) can set
 it. There is no tool parameter for it, so the model cannot mint one.
 
@@ -97,11 +97,11 @@ pytest tests/test_identity.py -q        # still pass (Module 2)
 pytest tests/test_blast_radius.py -q    # still fail -- Module 5 targets
 ```
 
-The authorization tests call the trusted cores with an explicit actor — exactly
+The authorization tests call the trusted cores with an explicit actor, exactly
 how the CLI and the LLM wrappers call them. They assert what a given identity is
 allowed to do, with no model in the loop. The two blast-radius tests pre-satisfy
 identity, ownership, and approval, so the only thing left for them to fail on is
-the missing cap — which keeps them honest as Module 5 targets.
+the missing cap, which keeps them honest as Module 5 targets.
 
 ## Teaching Points
 

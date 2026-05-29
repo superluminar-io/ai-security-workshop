@@ -24,7 +24,16 @@ Set the env vars ⇒ the same agent, now screened by the guardrail.
 
 ## Step 2: Create a guardrail
 
-Console: **Bedrock → Guardrails → Create**. For this workshop, enable:
+The quickest path is the included boto3 script — it creates a guardrail with a
+**prompt-attack** filter, a **denied topic** for refunds/discounts, and **PII**
+redaction, waits for it to be `READY`, and prints the env vars to export:
+
+```bash
+AWS_PROFILE=ai-workshop python setup_guardrail.py          # create (or reuse)
+AWS_PROFILE=ai-workshop python setup_guardrail.py --delete # tear down when done
+```
+
+Prefer to do it by hand? Console: **Bedrock → Guardrails → Create**, and enable:
 
 * **Prompt attacks** filter (the injection/jailbreak detector) — set to High.
 * **Sensitive information (PII)** — redact emails / addresses in output.

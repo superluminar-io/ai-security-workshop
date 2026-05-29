@@ -180,6 +180,7 @@ Then open [http://localhost:8080](http://localhost:8080) instead.
 | Start CLI (no LLM) | `ENABLE_LLM=0 python app.py` |
 | Run injection harness | `AWS_PROFILE=ai-workshop python attack_runner.py --trials 30` |
 | Prompt-framing demo (Module 1) | `AWS_PROFILE=ai-workshop python framing_demo.py --trials 15` |
+| Create/delete M4 guardrail | `AWS_PROFILE=ai-workshop python setup_guardrail.py [--delete]` |
 | Attack the running web app | `python attack_web.py --db /tmp/attack_demo.sqlite --trials 10` |
 | Run tests (no AWS needed) | `pytest -q` |
 | Reset database | `python reset_db.py` |
@@ -209,6 +210,7 @@ There is a difference between a test *failing* (assertion not met — expected) 
 - `attack_runner.py`: runs a prompt-injection attack N times (in-process); reports attempted vs harmed
 - `framing_demo.py`: Module 1 — same policy, different prompt framings; shows the prompt isn't a reliable control
 - `attack_web.py`: red-teams the *running* web server over HTTP; reports HARMED from DB side-effects
+- `setup_guardrail.py`: Module 4 — create/delete the Bedrock Guardrail via boto3
 - `reset_db.py`: Script to reset the database to initial state
 - `db.py`: SQLite schema + seed data (includes a malicious product description with prompt injection)
 - `tools.py`: Strands tools — trusted cores + LLM-facing wrappers (identity bound from the session)

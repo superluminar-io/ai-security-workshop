@@ -156,13 +156,11 @@ def count_recent_actions(
     Module 5 (detection): a cheap anomaly signal. You cannot prevent every
     slipped-through action against a non-deterministic agent, so you watch for
     abnormal volume (e.g. a burst of refunds) and alert on it.
-    """
-    from datetime import timedelta
 
-    cutoff = (datetime.now(timezone.utc) - timedelta(seconds=within_seconds)).isoformat()
-    row = conn.execute(
-        "SELECT COUNT(*) AS n FROM audit_log WHERE actor_customer_id = ? AND action = ? AND ts >= ?",
-        (actor_customer_id, action, cutoff),
-    ).fetchone()
-    return int(row["n"])
+    BASELINE STUB: returns 0 (no signal). Module 5 task: implement the windowed
+    count over `audit_log` so a burst becomes visible.
+    """
+    # TODO (Module 5): count rows in audit_log for this actor and action within
+    # the last `within_seconds` (filter on ts >= cutoff) and return that count.
+    return 0
 

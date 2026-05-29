@@ -56,6 +56,7 @@ AWS_PROFILE=ai-workshop python server.py        # web UI (http://localhost:5000)
 AWS_PROFILE=ai-workshop python app.py           # CLI (LLM mode)
 ENABLE_LLM=0 python app.py                       # CLI (no LLM; direct tool commands)
 AWS_PROFILE=ai-workshop python attack_runner.py --trials 30   # injection harness (in-process)
+AWS_PROFILE=ai-workshop python framing_demo.py --trials 15    # Module 1: same policy, different framings
 python attack_web.py --db /tmp/attack_demo.sqlite --trials 10 # attack the running web app (HARMED via DB)
 pytest -q                                        # deterministic boundary tests (no AWS)
 ```

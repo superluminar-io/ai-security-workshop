@@ -77,18 +77,20 @@ non-deterministic model by making the security boundary independent of it.**
 ## Module 1 — The prompt is not a boundary
 
 - **Goal:** kill the first instinct ("just tell it not to").
-- **Demo:** harden `prompts.py` two ways and measure. (a) Untrusted-data framing
-  vs the INDIRECT channel — but it was already ~0, so its effect is *unmeasurable*
-  on this model. (b) Put the authorization policy in the prompt ("no refund
-  without approval; no external email") vs the DIRECT channel — HARMED drops from
-  ~100% but **flickers**, never a stable 0. That flicker is the non-determinism.
-- **Change:** `prompts.py` only.
-- **Validate:** re-run the direct channel several times; show the residual,
-  unstable non-zero rate. No deterministic gate.
+- **Demo:** `framing_demo.py` holds the same two authorization rules fixed and
+  varies only the *framing* around them, vs the DIRECT attack. The identical rule
+  is ignored under casual/neutral wording (~100% harmed), engages only under an
+  aggressively strict framing, and near-identical strict wordings disagree and
+  flicker. Same rule, 0%–100% on tone alone. (Aside: injection-hardening's effect
+  is *unmeasurable* here — the model already resisted at ~0%.)
+- **Change:** `prompts.py` hardening kept as Layer 2; the lesson comes from the
+  demo, not from a measurable improvement.
+- **Validate:** run the demo; observe the swing across framings and that the
+  strict rows move between runs. No deterministic gate.
 - **Teaching:** prompt hardening — *including policy stated in the prompt* — is
-  real defense-in-depth (Layer 2), never a boundary. A probabilistic control,
-  and one whose effect you often can't even measure, can't gate an irreversible
-  action.
+  real defense-in-depth (Layer 2), never a boundary. You are not setting a rule;
+  you are nudging a stochastic process whose response to your wording you cannot
+  predict or audit.
 
 ## Module 2 — Layer 1 keystone: bind identity to the session
 

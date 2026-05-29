@@ -55,9 +55,11 @@ why it works).
 AWS_PROFILE=ai-workshop python server.py        # web UI (http://localhost:5000)
 AWS_PROFILE=ai-workshop python app.py           # CLI (LLM mode)
 ENABLE_LLM=0 python app.py                       # CLI (no LLM; direct tool commands)
-AWS_PROFILE=ai-workshop python attack_runner.py --trials 30   # injection harness
+AWS_PROFILE=ai-workshop python attack_runner.py --trials 30   # injection harness (in-process)
+python attack_web.py --db /tmp/attack_demo.sqlite --trials 10 # attack the running web app (HARMED via DB)
 pytest -q                                        # deterministic boundary tests (no AWS)
 ```
 
 The test suite encodes the **secure** target behavior and needs no AWS. The
-`attack_runner` and the live agent need Bedrock credentials.
+`attack_runner` and the live agent need Bedrock credentials; `attack_web` needs
+a running `server.py` (which in turn needs Bedrock).

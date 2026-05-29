@@ -36,6 +36,30 @@ AWS_PROFILE=ai-workshop python attack_runner.py --trials 50
 ATTEMPTED climbs. **HARMED is still 0.** The boundary, not the mitigations, is
 what protects the money.
 
+### Variant: attack the *running web app* over HTTP
+
+`attack_runner.py` builds the agent in-process so it can watch the tool-call
+transcript. `attack_web.py` does the opposite — it attacks the app exactly as an
+outsider would, POSTing the injection to the running Flask server, then asking
+the *database* whether any irreversible action actually landed:
+
+```bash
+# terminal 1 — run the server against a throwaway DB so the demo is isolated
+ECOMM_DB=/tmp/attack_demo.sqlite AWS_PROFILE=ai-workshop python server.py
+
+# terminal 2
+python attack_web.py --db /tmp/attack_demo.sqlite --trials 10
+```
+
+It reports **HARMED** from DB side-effects (a refund posted, a discount applied,
+an email queued to an outside address) — never from the chat reply, which is the
+unreliable observable. It deliberately does **not** report ATTEMPTED: from
+outside the app you cannot see how often the model took the bait, and that
+blindness is the lesson — the deterministic boundary is what lets you stop
+caring, because being fooled cannot become harm. Against this hardened branch
+HARMED stays **0** no matter how many trials you run; against the broken
+baseline, it climbs.
+
 ## Part B — deterministic: simulate a fully compromised model
 
 Empirical runs sample the model; they can't cover every output. So we also prove

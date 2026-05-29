@@ -1,21 +1,27 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import db
 
-try:
+if TYPE_CHECKING:
+    # The type checker always sees the real Strands symbols, so `tool` keeps its
+    # decorator type and `ToolContext` is a usable type in annotations.
     from strands import tool
     from strands.types.tools import ToolContext
-except Exception:  # pragma: no cover - allows running without strands installed
+else:
+    try:
+        from strands import tool
+        from strands.types.tools import ToolContext
+    except Exception:  # pragma: no cover - allows running without strands installed
 
-    def tool(fn=None, **_kwargs):  # type: ignore[misc]
-        if fn is None:
-            return lambda f: f
-        return fn
+        def tool(fn=None, **_kwargs):
+            if fn is None:
+                return lambda f: f
+            return fn
 
-    ToolContext = Any  # type: ignore[assignment,misc]
+        ToolContext = Any
 
 
 DEFAULT_DB_PATH = os.environ.get("ECOMM_DB", "ecomm.sqlite")

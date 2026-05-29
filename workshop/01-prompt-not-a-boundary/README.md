@@ -82,6 +82,11 @@ odds — sometimes a lot — but it cannot give you a guarantee, because:
 * a stronger framing, a model update, or a longer context can all change the
   outcome.
 
+Notice the *shape* of the failure: you did not forget the rule — you wrote it
+down, and the model ignored it on some samples anyway. The problem was never a
+missing check (that would be ordinary appsec, fixed by adding it); the problem is
+a check that lives somewhere it can only be obeyed *probabilistically*.
+
 That makes prompt hardening — *including* policy stated in the prompt — a
 **mitigation**, not a **boundary**. The authorization rule belongs somewhere the
 model cannot argue with it: in code. That is Module 3. The prompt stays as

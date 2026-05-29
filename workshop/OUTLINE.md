@@ -78,11 +78,11 @@ non-deterministic model by making the security boundary independent of it.**
 
 - **Goal:** kill the first instinct ("just tell it not to").
 - **Demo:** `framing_demo.py` holds the same two authorization rules fixed and
-  varies only the *framing* around them, vs the DIRECT attack. The identical rule
-  is ignored under casual/neutral wording (~100% harmed), engages only under an
-  aggressively strict framing, and near-identical strict wordings disagree and
-  flicker. Same rule, 0%–100% on tone alone. (Aside: injection-hardening's effect
-  is *unmeasurable* here — the model already resisted at ~0%.)
+  varies only the *framing* around them, vs the DIRECT attack. The harm rate has
+  no readable relationship to how strict each wording looks (a plain "neutral"
+  framing is often the worst) and shuffles run to run — a framing can swing
+  0%–100% across re-runs. Same rule, unpredictable outcome. (Aside: injection-
+  hardening's effect is *unmeasurable* here — the model already resisted at ~0%.)
 - **Change:** `prompts.py` hardening kept as Layer 2; the lesson comes from the
   demo, not from a measurable improvement.
 - **Validate:** run the demo; observe the swing across framings and that the

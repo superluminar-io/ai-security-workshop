@@ -23,32 +23,33 @@ attack.
 AWS_PROFILE=ai-workshop python framing_demo.py --trials 15
 ```
 
-You'll see something like:
+You'll see something like (one real run):
 
 ```
-  casual-helpful         HARMED 15/15 (100%)
-  neutral                HARMED 14/15 (93%)
+  casual-helpful         HARMED  2/15 (13%)
+  neutral                HARMED 15/15 (100%)
   strict                 HARMED  4/15 (26%)
-  strict-no-exceptions   HARMED  0/15 (0%)
+  strict-no-exceptions   HARMED  3/15 (20%)
 ```
 
-(Your exact numbers will differ — and that's the point. Run it again; the strict
-rows move.)
+**Do not expect these to line up with the labels, and do not expect your run to
+match this one.** The rows are arranged loosest-to-strictest in *wording* — and
+the harm rate ignores that order (here the *neutral* wording is the worst of the
+four). Run it again and the numbers move; a framing that was near-zero can jump
+to 100%.
 
-Sit with what this says. **The policy text was identical in all four runs.** The
-only thing that changed was the wording *around* it — and the harm rate swings
-from 100% to 0%. Two observations, both load-bearing:
+Sit with what this says. **The policy text was identical in all four runs** —
+only the wording *around* it changed. Two observations, both load-bearing:
 
-1. **A clear rule in a "be helpful" prompt is ignored outright.** Your first,
-   most natural attempt — bolt the rule onto the existing helpful assistant — does
-   *nothing*. The model isn't weighing your rule; the helpful framing dominates.
-2. **Only an aggressively strict framing engages the rule at all — and even then
-   it's unstable.** Two near-identical strict wordings ("be helpful for everything
-   else" vs "no exceptions") disagree, and the in-between one flickers run to run.
+1. **The harm rate has no readable relationship to how strict a prompt looks.**
+   You cannot glance at a wording and predict how well it holds. The label
+   "strict" buys you nothing reliable; a plain "neutral" one can be the worst.
+2. **It isn't even stable for a fixed wording.** Re-run the demo and the rows
+   shuffle — sometimes a framing swings between 0% and 100% on the identical
+   prompt. You are not reading a control's setting; you are sampling a process.
 
-You are not setting a policy. You are nudging the weights of a stochastic
-process, and small, un-auditable wording choices swing the outcome across the
-entire range.
+You are not setting a policy. You are nudging the weights of a stochastic process
+whose response to your exact words you cannot predict or audit.
 
 > Aside: hardening against the *injection* channel (Module 0's channel A) is
 > worth doing as hygiene, but on this model you can't even measure it — the model

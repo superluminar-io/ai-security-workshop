@@ -31,11 +31,11 @@ Two things, both instructive:
   untrusted-data framing do anything. A control whose effect you can't measure is
   one you can't trust — it may be load-bearing on another model, or doing nothing
   here, and you can't tell from inside.
-- **The authorization rule's effect is dominated by framing, not by the rule.**
-  The identical two-line policy is ignored outright under a casual or neutral
-  prompt (harmed ~100%), engages only under an aggressively strict framing, and
-  even near-identical strict wordings disagree and flicker run to run. Same rule,
-  0%–100% on tone alone. That swing is the entire lesson.
+- **The authorization rule's effect is dominated by wording you can't reason
+  about.** The identical two-line policy produces harm rates with no readable
+  relationship to how strict each framing looks (a plain "neutral" wording is
+  often the worst), and the rates shuffle run to run — a framing can swing
+  0%–100% across re-runs of the same prompt. That unpredictability is the lesson.
 
 ## Why it cannot be a boundary
 

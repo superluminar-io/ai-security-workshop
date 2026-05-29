@@ -2,7 +2,8 @@
 
 ## The change (`prompts.py`)
 
-Replace the deliberately-unsafe block with explicit untrusted-data framing:
+The baseline prompt is an ordinary, reasonable assistant prompt — it says nothing
+about untrusted data. Add an explicit untrusted-data framing as Layer-2 hygiene:
 
 ```text
 IMPORTANT:

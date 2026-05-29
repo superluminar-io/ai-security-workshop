@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 import db
 import tools
+
+if TYPE_CHECKING:
+    from strands.types.tools import ToolContext
 
 
 def _init_tmp_db(tmp_path: Path) -> str:
@@ -56,7 +59,7 @@ def test_model_cannot_supply_actor_identity() -> None:
 
 def test_tool_fails_closed_without_session() -> None:
     """With no authenticated actor in the session, identity-bearing tools refuse."""
-    ctx = _Session()  # no actor_customer_id
+    ctx = cast("ToolContext", _Session())  # no actor_customer_id
     res = tools.refund_order_tool("order_001", 100, tool_context=ctx)
     assert res["status"] == "error"
 
@@ -78,7 +81,7 @@ def test_wrapper_forwards_session_actor(monkeypatch) -> None:
 
     monkeypatch.setattr(tools, "refund_order", fake_core)
 
-    ctx = _Session(actor_customer_id="cust_001", db_path="unused")
+    ctx = cast("ToolContext", _Session(actor_customer_id="cust_001", db_path="unused"))
     tools.refund_order_tool("order_002", 100, tool_context=ctx)
 
     assert captured["actor"] == "cust_001"

@@ -18,10 +18,18 @@ def test_customer_data_scoped_to_self() -> None:
     assert policy_cedar.customer_data_allowed("cust_001", "cust_002") is False
 
 
-def test_policy_layer_is_cedar_backed() -> None:
-    """The live policy decisions are driven by the Cedar engine: a non-owner is
-    denied, the owner is allowed (then subject to HITL/caps)."""
-    assert policy.refund_policy("cust_001", "order_x", 100, order_customer_id="cust_002").allowed is False
-    owner = policy.refund_policy("cust_001", "order_x", 100, order_customer_id="cust_001", order_total_cents=1000)
-    assert owner.allowed is True
-    assert owner.requires_approval is True
+def test_policy_layer_is_cedar_backed(monkeypatch) -> None:
+    """policy.py must DELEGATE to the Cedar engine, not re-implement the rules.
+
+    We force the engine to deny everything. Hand-rolled ownership code would still
+    allow the owner, so these assertions pass only if policy.py actually consults
+    Cedar. This is what makes Module 6 load-bearing rather than a side demo.
+    """
+    monkeypatch.setattr(policy_cedar, "order_action_allowed", lambda *a, **k: False)
+    monkeypatch.setattr(policy_cedar, "customer_data_allowed", lambda *a, **k: False)
+
+    refund = policy.refund_policy(
+        "cust_001", "order_001", 100, order_customer_id="cust_001", order_total_cents=1000
+    )
+    assert refund.allowed is False  # owner; only Cedar-delegation can deny this
+    assert policy.can_access_customer_data("cust_001", "cust_001").allowed is False

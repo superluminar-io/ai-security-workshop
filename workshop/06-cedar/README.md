@@ -31,9 +31,16 @@ not changing *what* is decided; we are moving *where* it is expressed.
 4. Run the tests:
 
    ```bash
-   pytest tests/test_cedar.py -q       # the Cedar engine directly
+   pytest tests/test_cedar.py -q       # includes the delegation check below
    pytest tests/test_authorization.py -q  # the same checks, now Cedar-backed
    ```
+
+   `test_policy_layer_is_cedar_backed` is this module's red-to-green: it forces
+   the engine to deny and checks that `policy.py` honors that. Hand-rolled
+   ownership code ignores the engine, so it stays red until you actually
+   delegate. (`test_authorization.py` passes either way, because hand-rolled and
+   Cedar agree on the decisions, which is why it cannot, by itself, prove Cedar
+   is wired in.)
 
 `cedarpy` is a base dependency (`uv sync` / `pip install -r requirements.txt`
 installs it), so this is part of the running app, not a bolt-on.

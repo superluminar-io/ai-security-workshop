@@ -18,10 +18,12 @@ into something you didn't anticipate. Layer 3 is what you do about the residual:
 1. Add the caps that bound damage:
    * a refund may never exceed the order total;
    * a discount may never exceed a maximum percentage.
-2. Make the audit trail complete: every sensitive action, including reads of
-   PII and discounts, leaves a structured record.
-3. Add a cheap anomaly signal: count an actor's recent actions so a burst (say,
-   many refunds in a minute) can raise an alert.
+2. Make the audit trail complete: every sensitive action (refunds, discounts,
+   and reads of PII) leaves a structured record. Emails already log; the others
+   do not yet.
+3. Implement the anomaly signal: `db.count_recent_actions` ships as a stub that
+   returns 0. Make it count an actor's recent actions in a window, so a burst
+   (say, many refunds in a minute) can raise an alert.
 
 ### Hints
 

@@ -15,7 +15,7 @@ IMPORTANT:
   explicitly ask for.
 ```
 
-## What it buys you
+## What it buys you (and what it doesn't)
 
 Re-run the harness several times:
 
@@ -23,8 +23,15 @@ Re-run the harness several times:
 AWS_PROFILE=ai-workshop python attack_runner.py --trials 30
 ```
 
-You will see the **attempted** rate fall — often substantially. You will also
-see it refuse to sit at zero across repeated runs. That gap is the entire lesson.
+Two things you'll notice, both instructive:
+
+- **INDIRECT:** already ~0 before your change on this model, so you can't see the
+  injection guard work. A control you can't measure is one you can't trust — it
+  may be load-bearing on another model, or doing nothing here, and you can't tell.
+- **DIRECT:** unchanged by an injection guard — the user *asked*, so it doesn't
+  apply. Only an authorization *policy* touches it, and a policy stated in the
+  prompt (README Part 2) **flickers**: harmed drops well below 100% but never to
+  a stable 0. That flicker is the entire lesson.
 
 ## Why it cannot be a boundary
 

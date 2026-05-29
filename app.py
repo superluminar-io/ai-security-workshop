@@ -111,7 +111,7 @@ def _llm_mode() -> None:
         result = agent(raw, invocation_state={"actor_customer_id": ACTOR_CUSTOMER_ID, "db_path": DB_PATH})
         # AgentResult has a message with content blocks; print best-effort
         try:
-            msg = result["message"]
+            msg = result.message
             content = msg.get("content") or []
             text = ""
             if isinstance(content, list) and content and isinstance(content[0], dict):

@@ -178,6 +178,7 @@ Then open [http://localhost:8080](http://localhost:8080) instead.
 | Start CLI (LLM mode) | `AWS_PROFILE=ai-workshop python app.py` |
 | Start CLI (no LLM) | `ENABLE_LLM=0 python app.py` |
 | Run injection harness | `AWS_PROFILE=ai-workshop python attack_runner.py --trials 30` |
+| Prompt-framing demo (Module 1) | `AWS_PROFILE=ai-workshop python framing_demo.py --trials 15` |
 | Attack the running web app | `python attack_web.py --db /tmp/attack_demo.sqlite --trials 10` |
 | Run tests (no AWS needed) | `pytest -q` |
 | Reset database | `python reset_db.py` |
@@ -205,6 +206,7 @@ There is a difference between a test *failing* (assertion not met — expected) 
 - `agent_setup.py`: builds the agent + model (attaches a Bedrock Guardrail when configured)
 - `server.py`: Web server with Flask (serves chat UI on http://localhost:5000)
 - `attack_runner.py`: runs a prompt-injection attack N times (in-process); reports attempted vs harmed
+- `framing_demo.py`: Module 1 — same policy, different prompt framings; shows the prompt isn't a reliable control
 - `attack_web.py`: red-teams the *running* web server over HTTP; reports HARMED from DB side-effects
 - `reset_db.py`: Script to reset the database to initial state
 - `db.py`: SQLite schema + seed data (includes a malicious product description with prompt injection)

@@ -46,14 +46,18 @@ def build_model():
     )
 
 
-def build_agent():
+def build_agent(system_prompt: str | None = None):
     """Construct the Strands agent. Imported lazily so non-LLM code paths and the
-    test suite do not require strands or AWS credentials."""
+    test suite do not require strands or AWS credentials.
+
+    `system_prompt` overrides the default prompt; the Module 1 framing demo uses
+    it to run the same attack under different wordings. Callers normally omit it.
+    """
     from strands import Agent
 
     return Agent(
         model=build_model(),
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=SYSTEM_PROMPT if system_prompt is None else system_prompt,
         callback_handler=None,
         tools=list(AGENT_TOOLS),
     )

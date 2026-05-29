@@ -17,21 +17,25 @@ IMPORTANT:
 
 ## What it buys you (and what it doesn't)
 
-Re-run the harness several times:
+Run the framing demo — the same two policy rules, four wordings, against the
+direct attack:
 
 ```bash
-AWS_PROFILE=ai-workshop python attack_runner.py --trials 30
+AWS_PROFILE=ai-workshop python framing_demo.py --trials 15
 ```
 
-Two things you'll notice, both instructive:
+Two things, both instructive:
 
-- **INDIRECT:** already ~0 before your change on this model, so you can't see the
-  injection guard work. A control you can't measure is one you can't trust — it
-  may be load-bearing on another model, or doing nothing here, and you can't tell.
-- **DIRECT:** unchanged by an injection guard — the user *asked*, so it doesn't
-  apply. Only an authorization *policy* touches it, and a policy stated in the
-  prompt (README Part 2) **flickers**: harmed drops well below 100% but never to
-  a stable 0. That flicker is the entire lesson.
+- **The injection guard is unmeasurable here.** On this model the indirect
+  channel was already ~0 before any hardening, so you cannot see the
+  untrusted-data framing do anything. A control whose effect you can't measure is
+  one you can't trust — it may be load-bearing on another model, or doing nothing
+  here, and you can't tell from inside.
+- **The authorization rule's effect is dominated by framing, not by the rule.**
+  The identical two-line policy is ignored outright under a casual or neutral
+  prompt (harmed ~100%), engages only under an aggressively strict framing, and
+  even near-identical strict wordings disagree and flicker run to run. Same rule,
+  0%–100% on tone alone. That swing is the entire lesson.
 
 ## Why it cannot be a boundary
 

@@ -24,7 +24,6 @@ class AiSecurityWorkshopStack(Stack):
             self,
             "AgentImage",
             directory=project_root,
-            platform=ecr_assets.Platform.LINUX_AMD64,
         )
 
         # IAM role the AgentCore Runtime container assumes

@@ -145,7 +145,7 @@ You should see output like:
 FAILED tests/test_authorization.py::test_refund_blocks_other_customers_order
 FAILED tests/test_authorization.py::test_pii_scoping_blocks_other_customer
 ...
-16 failed, 10 passed in 0.XXs
+16 failed, 12 passed in 0.XXs
 ```
 
 **Failing tests are expected at this point.** The tests encode the secure behavior you will implement during the workshop. If the tests run (even if they fail), your environment is set up correctly.
@@ -178,6 +178,7 @@ Then open [http://localhost:8080](http://localhost:8080) instead.
 | Start CLI (LLM mode) | `AWS_PROFILE=ai-workshop python app.py` |
 | Start CLI (no LLM) | `ENABLE_LLM=0 python app.py` |
 | Run injection harness | `AWS_PROFILE=ai-workshop python attack_runner.py --trials 30` |
+| Attack the running web app | `python attack_web.py --db /tmp/attack_demo.sqlite --trials 10` |
 | Run tests (no AWS needed) | `pytest -q` |
 | Reset database | `python reset_db.py` |
 
@@ -203,7 +204,8 @@ There is a difference between a test *failing* (assertion not met — expected) 
 - `app.py`: CLI entrypoint (optionally uses a Strands `Agent`)
 - `agent_setup.py`: builds the agent + model (attaches a Bedrock Guardrail when configured)
 - `server.py`: Web server with Flask (serves chat UI on http://localhost:5000)
-- `attack_runner.py`: runs a prompt-injection attack N times; reports attempted vs harmed
+- `attack_runner.py`: runs a prompt-injection attack N times (in-process); reports attempted vs harmed
+- `attack_web.py`: red-teams the *running* web server over HTTP; reports HARMED from DB side-effects
 - `reset_db.py`: Script to reset the database to initial state
 - `db.py`: SQLite schema + seed data (includes a malicious product description with prompt injection)
 - `tools.py`: Strands tools — trusted cores + LLM-facing wrappers (identity bound from the session)

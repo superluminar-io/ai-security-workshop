@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 import db
 import tools
+
+if TYPE_CHECKING:
+    from strands.types.tools import ToolContext
 
 
 def _init_tmp_db(tmp_path: Path) -> str:
@@ -38,7 +42,7 @@ def test_compromised_model_cannot_cause_harm(tmp_path: Path) -> None:
     what the model emits.
     """
     db_path = _init_tmp_db(tmp_path)
-    ctx = _Session(actor_customer_id="cust_001", db_path=db_path)  # no approval token
+    ctx = cast("ToolContext", _Session(actor_customer_id="cust_001", db_path=db_path))  # no approval token
 
     attacks = [
         tools.get_customer_profile_tool("cust_002", tool_context=ctx),          # read others' PII

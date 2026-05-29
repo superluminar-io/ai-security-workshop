@@ -64,11 +64,14 @@ Apply the same split to `get_customer_profile`, `list_orders`, `apply_discount`,
 and `send_email`. Read-only catalog tools (`search_products`,
 `get_product_details`) carry no identity and stay as-is.
 
-## Step 2: Register the wrappers with the agent
+## Step 2: Confirm the agent uses the wrappers (already wired)
+
+Nothing to change here, the agent is already built from the `*_tool` wrappers,
+not the cores (`agent_setup.AGENT_TOOLS`):
 
 ```python
-# app.py, _llm_mode()
-tools=[
+# agent_setup.py
+AGENT_TOOLS = [
     ecomm_tools.search_products,
     ecomm_tools.list_products,
     ecomm_tools.get_product_details,
@@ -80,10 +83,10 @@ tools=[
 ]
 ```
 
-The CLI command mode keeps calling the trusted cores directly, it binds the
-actor from an env var, which is itself a trusted, out-of-band source. That is the
-same pattern as the wrapper: every legitimate caller supplies identity; the model
-never does.
+The work was all in Step 1: those wrappers now expose no actor field. The CLI
+command mode keeps calling the trusted cores directly; it binds the actor from an
+env var, a trusted out-of-band source. Same pattern as the wrapper: every
+legitimate caller supplies identity; the model never does.
 
 ## Step 3: Stop the prompt from naming an actor
 

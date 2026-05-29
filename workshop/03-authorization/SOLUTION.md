@@ -61,7 +61,7 @@ def refund_order(actor_customer_id, order_id, refund_cents, *, db_path=None, app
         return _err(d.reason)
     if d.requires_approval and not approval_token:
         return _err(f"Refund of order {order_id} requires human approval before it can be issued.")
-    ...  # mutate + audit
+    ...  # mutate (auditing this action is added in Module 5)
 ```
 
 `list_orders` uses `can_access_customer_data`; `apply_discount` fetches the order

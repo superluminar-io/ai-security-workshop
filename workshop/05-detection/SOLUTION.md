@@ -24,10 +24,15 @@ def discount_policy(...):
 
 ## Step 2: Complete the audit trail (`tools.py`)
 
-`db.audit(...)` was called for refunds and emails but not discounts or profile
-reads. Make it consistent, every sensitive action, including reads of PII:
+In the baseline, `db.audit(...)` is called for emails but not refunds, discounts,
+or profile reads. Make it consistent, every sensitive action leaves a record:
 
 ```python
+# in refund_order, after the UPDATE
+db.audit(conn, actor_customer_id=actor_customer_id, action="refund_order",
+         details={"order_id": order_id, "refund_cents": int(refund_cents),
+                  "new_refunded_cents": new_refunded})
+
 # in apply_discount, after the update
 db.audit(conn, actor_customer_id=actor_customer_id, action="apply_discount",
          details={"order_id": order_id, "percent": int(percent)})
@@ -38,6 +43,8 @@ db.audit(conn, actor_customer_id=actor_customer_id, action="view_customer_profil
 ```
 
 ## Step 3: An anomaly signal (`db.py`)
+
+`db.count_recent_actions` ships as a stub returning 0. Implement the query:
 
 ```python
 def count_recent_actions(conn, actor_customer_id, action, *, within_seconds=3600) -> int:

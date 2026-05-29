@@ -65,12 +65,15 @@ def refund_policy(actor_customer_id, order_id, refund_cents, *, order_customer_i
 ## Validate
 
 ```bash
-pytest tests/test_cedar.py -q          # the Cedar engine directly
+pytest tests/test_cedar.py -q          # incl. test_policy_layer_is_cedar_backed
 pytest tests/test_authorization.py -q  # the same ownership/scoping checks, now Cedar-backed
 ```
 
-`tests/test_authorization.py` is the real proof: those ownership and PII-scoping
-tests now pass *through* Cedar, the engine is load-bearing, not a side demo.
+`test_policy_layer_is_cedar_backed` is the proof that the engine is load-bearing,
+not a side demo: it forces Cedar to deny and asserts `policy.py` honors that, so
+it stays red until `policy.py` actually delegates. `test_authorization.py` keeps
+passing either way, because hand-rolled and Cedar agree on the decisions, which
+is exactly why it could not, on its own, prove Cedar was wired in.
 
 ## Teaching Points
 

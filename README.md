@@ -1,4 +1,4 @@
-# AI Security Workshop: Insecure Strands E‑Commerce Agent
+# Securing a Tool-Using AI Agent: Insecure Strands E-Commerce Demo
 
 This repo contains an **intentionally insecure** Strands-based e-commerce assistant for running hands-on workshops about:
 
@@ -7,7 +7,7 @@ This repo contains an **intentionally insecure** Strands-based e-commerce assist
 - PII scoping / cross-customer data access
 - tool authorization
 
-The app is **supposed to start insecure**. The accompanying tests encode the **desired secure behavior**, so the initial version is expected to fail tests until you add guardrails.
+The app is **supposed to start insecure**. The tests check whether each fix is **enabled** (red = not enabled, green = enabled correctly), never whether the agent is "safe", see the [workshop guide](workshop/README.md) for why that distinction is the whole point. You start from red on the `mm-proposal` branch and turn the controls green; `mm-proposal-solution` is the finished reference.
 
 ## Setup
 
@@ -16,10 +16,10 @@ The app is **supposed to start insecure**. The accompanying tests encode the **d
 | Requirement | Version | Notes |
 |---|---|---|
 | Python | 3.11 or higher | |
-| `uv` or `pip` |, | `uv` is recommended; `pip` works too |
+| `uv` or `pip` | any | `uv` is recommended; `pip` works too |
 | Git | any recent version | |
 | AWS CLI | v2 | For configuring your IAM credentials |
-| A code editor |, | VS Code recommended |
+| A code editor | any | VS Code recommended |
 
 ### 1. Python 3.11+
 
@@ -145,10 +145,10 @@ You should see output like:
 FAILED tests/test_authorization.py::test_refund_blocks_other_customers_order
 FAILED tests/test_authorization.py::test_pii_scoping_blocks_other_customer
 ...
-16 failed, 12 passed in 0.XXs
+17 failed, 12 passed in 0.XXs
 ```
 
-**Failing tests are expected at this point.** The tests encode the secure behavior you will implement during the workshop. If the tests run (even if they fail), your environment is set up correctly.
+**Red is expected here:** each failing test marks a control you have not enabled yet, and it goes green when you enable it correctly. Green means the control is in place, not that the agent is "safe". If the tests run at all, even failing, your environment is set up correctly.
 
 ### 7. Start the web interface
 
@@ -209,6 +209,7 @@ There is a difference between a test *failing* (assertion not met, expected) and
 - `attack_runner.py`: runs a prompt-injection attack N times (in-process); reports attempted vs harmed
 - `framing_demo.py`: Module 1, same policy, different prompt framings; shows the prompt isn't a reliable control
 - `attack_web.py`: red-teams the *running* web server over HTTP; reports HARMED from DB side-effects
+- `scripted_model.py`: a model we control, used by the wiring test to drive the real agent loop offline
 - `setup_guardrail.py`: Module 4, create/delete the Bedrock Guardrail via boto3
 - `reset_db.py`: Script to reset the database to initial state
 - `db.py`: SQLite schema + seed data (includes a malicious product description with prompt injection)

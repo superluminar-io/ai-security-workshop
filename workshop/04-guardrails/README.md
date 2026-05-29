@@ -17,8 +17,14 @@ to put in front of students as the control you must *not* rely on as a boundary.
 
 ## Task
 
-1. Create a guardrail in your AWS account (see SOLUTION) and note its ID.
-2. Point the app at it:
+1. Create a guardrail in your AWS account and note its ID — the quickest way is
+   the included script (see SOLUTION for what it configures):
+
+   ```bash
+   AWS_PROFILE=ai-workshop python setup_guardrail.py
+   ```
+
+2. Point the app at it (the script prints these for you):
 
    ```bash
    export BEDROCK_GUARDRAIL_ID=<your-guardrail-id>

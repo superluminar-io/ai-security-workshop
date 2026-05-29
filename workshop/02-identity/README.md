@@ -1,11 +1,11 @@
 # Module 2: The Identity Boundary
 
-> Layer 1 (deterministic boundary) — the keystone. Everything in Module 3
+> Layer 1 (deterministic boundary): the keystone. Everything in Module 3
 > depends on this being right.
 
 ## Task
 
-Goal: make the assistant act as someone other than you — and notice *who* gets
+Goal: make the assistant act as someone other than you, and notice *who* gets
 to decide who you are.
 
 Try this:
@@ -40,7 +40,7 @@ order_id, refund_cents)`. The model fills in tool arguments. If
 <summary>Hint 3</summary>
 
 Now think about prompt injection. A hostile product description doesn't just get
-to ask for a refund — it gets to ask for a refund *as anyone*, because identity
+to ask for a refund; it gets to ask for a refund *as anyone*, because identity
 is just another field the model writes.
 
 </details>
@@ -50,12 +50,12 @@ is just another field the model writes.
 ## Why this is the keystone, not just another access-control bug
 
 It is tempting to jump straight to "add an ownership check." But an ownership
-check compares the action against the *actor* — and if the actor itself is
+check compares the action against the *actor*, and if the actor itself is
 attacker-influenced, the check is meaningless. **You cannot authorize anything
 until you can trust the identity.**
 
 This is the difference between an agent and a button. A web form never lets the
-*user* choose their own customer ID — the server reads it from the authenticated
+*user* choose their own customer ID; the server reads it from the authenticated
 session (the cookie). The baseline agent throws that away and lets the model
 assert identity. Fixing that is the precondition for Module 3.
 

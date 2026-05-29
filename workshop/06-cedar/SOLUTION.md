@@ -70,13 +70,13 @@ pytest tests/test_authorization.py -q  # the same ownership/scoping checks, now 
 ```
 
 `tests/test_authorization.py` is the real proof: those ownership and PII-scoping
-tests now pass *through* Cedar — the engine is load-bearing, not a side demo.
+tests now pass *through* Cedar, the engine is load-bearing, not a side demo.
 
 ## Teaching Points
 
 1. **Authorization is data.** Expressing it as policy makes it reviewable,
    versionable, and changeable without touching application logic.
-2. **The engine is interchangeable.** Cedar, OPA/Rego, OpenFGA, Oso — same
+2. **The engine is interchangeable.** Cedar, OPA/Rego, OpenFGA, Oso, same
    shape. Picking one is not a lock-in decision about the *pattern*.
 3. **Position unchanged.** It is still a deterministic Layer-1 decision outside
    the model. We moved where the rule lives, not what protects you.

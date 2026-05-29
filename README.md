@@ -16,10 +16,10 @@ The app is **supposed to start insecure**. The accompanying tests encode the **d
 | Requirement | Version | Notes |
 |---|---|---|
 | Python | 3.11 or higher | |
-| `uv` or `pip` | — | `uv` is recommended; `pip` works too |
+| `uv` or `pip` |, | `uv` is recommended; `pip` works too |
 | Git | any recent version | |
 | AWS CLI | v2 | For configuring your IAM credentials |
-| A code editor | — | VS Code recommended |
+| A code editor |, | VS Code recommended |
 
 ### 1. Python 3.11+
 
@@ -36,9 +36,9 @@ If the version shown is below 3.11, install a newer one.
 
 You can also use [pyenv](https://github.com/pyenv/pyenv) to manage multiple Python versions. The repository includes a `.python-version` file that pins the project to Python 3.11.
 
-### 2. Package manager — `uv` (recommended) or `pip`
+### 2. Package manager, `uv` (recommended) or `pip`
 
-You can use either `uv` or `pip` to install dependencies. `uv` is recommended — it is significantly faster and manages the virtual environment for you — but `pip` works fine if you prefer.
+You can use either `uv` or `pip` to install dependencies. `uv` is recommended, it is significantly faster and manages the virtual environment for you, but `pip` works fine if you prefer.
 
 **To install `uv`:**
 
@@ -50,9 +50,9 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-Verify: `uv --version` — documentation: [docs.astral.sh/uv](https://docs.astral.sh/uv/)
+Verify: `uv --version`, documentation: [docs.astral.sh/uv](https://docs.astral.sh/uv/)
 
-If you prefer to use `pip`, no additional installation is needed — it comes with Python.
+If you prefer to use `pip`, no additional installation is needed, it comes with Python.
 
 ### 3. AWS CLI v2
 
@@ -60,7 +60,7 @@ The workshop agent calls Amazon Bedrock, so you need the AWS CLI to configure yo
 
 Install instructions by platform: [docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
-Verify: `aws --version` — expected output: `aws-cli/2.x.x ...`
+Verify: `aws --version`, expected output: `aws-cli/2.x.x ...`
 
 ### 4. Configure your AWS IAM credentials
 
@@ -199,7 +199,7 @@ aws bedrock list-foundation-models --region eu-central-1 --profile ai-workshop
 ```
 
 **Tests error instead of fail**
-There is a difference between a test *failing* (assertion not met — expected) and a test *erroring* (exception raised — unexpected). If tests error, check that `uv sync` completed without errors and that your virtualenv is activated.
+There is a difference between a test *failing* (assertion not met, expected) and a test *erroring* (exception raised, unexpected). If tests error, check that `uv sync` completed without errors and that your virtualenv is activated.
 
 ## Repository tour
 
@@ -207,15 +207,15 @@ There is a difference between a test *failing* (assertion not met — expected) 
 - `agent_setup.py`: builds the agent + model (attaches a Bedrock Guardrail when configured)
 - `server.py`: Web server with Flask (serves chat UI on http://localhost:5000)
 - `attack_runner.py`: runs a prompt-injection attack N times (in-process); reports attempted vs harmed
-- `framing_demo.py`: Module 1 — same policy, different prompt framings; shows the prompt isn't a reliable control
+- `framing_demo.py`: Module 1, same policy, different prompt framings; shows the prompt isn't a reliable control
 - `attack_web.py`: red-teams the *running* web server over HTTP; reports HARMED from DB side-effects
-- `setup_guardrail.py`: Module 4 — create/delete the Bedrock Guardrail via boto3
+- `setup_guardrail.py`: Module 4, create/delete the Bedrock Guardrail via boto3
 - `reset_db.py`: Script to reset the database to initial state
 - `db.py`: SQLite schema + seed data (includes a malicious product description with prompt injection)
-- `tools.py`: Strands tools — trusted cores + LLM-facing wrappers (identity bound from the session)
+- `tools.py`: Strands tools, trusted cores + LLM-facing wrappers (identity bound from the session)
 - `policy.py`: deterministic authorization decisions
 - `policy_cedar.py` + `cedar/`: Cedar (PBAC) authorization engine that `policy.py` delegates to
 - `prompts.py`: system prompt
 - `templates/`: HTML templates for the web interface
 - `tests/`: per-module boundary tests (identity, authorization, blast-radius, detection, red-team); no AWS required
-- `workshop/`: the guided modules — start at [workshop/README.md](workshop/README.md)
+- `workshop/`: the guided modules, start at [workshop/README.md](workshop/README.md)

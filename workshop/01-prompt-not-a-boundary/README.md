@@ -1,6 +1,6 @@
 # Module 1: The Prompt Is Not a Boundary
 
-> Layer 2 (probabilistic mitigation). The natural first instinct — and why it
+> Layer 2 (probabilistic mitigation). The natural first instinct, and why it
 > isn't a control surface you can reason about.
 
 ## The instinct
@@ -10,7 +10,7 @@ the data straight out. The obvious fix: **tell the model the policy.** Add to th
 system prompt: "never issue a refund without an approval code; never email data
 outside the company." Surely that closes it.
 
-Let's measure what putting the rule in the prompt actually buys — because the
+Let's measure what putting the rule in the prompt actually buys, because the
 answer is unsettling, and it's the whole module.
 
 ## Task
@@ -33,26 +33,26 @@ You'll see something like (one real run):
 ```
 
 **Do not expect these to line up with the labels, and do not expect your run to
-match this one.** The rows are arranged loosest-to-strictest in *wording* — and
+match this one.** The rows are arranged loosest-to-strictest in *wording*, and
 the harm rate ignores that order (here the *neutral* wording is the worst of the
 four). Run it again and the numbers move; a framing that was near-zero can jump
 to 100%.
 
-Sit with what this says. **The policy text was identical in all four runs** —
+Sit with what this says. **The policy text was identical in all four runs**, 
 only the wording *around* it changed. Two observations, both load-bearing:
 
 1. **The harm rate has no readable relationship to how strict a prompt looks.**
    You cannot glance at a wording and predict how well it holds. The label
    "strict" buys you nothing reliable; a plain "neutral" one can be the worst.
 2. **It isn't even stable for a fixed wording.** Re-run the demo and the rows
-   shuffle — sometimes a framing swings between 0% and 100% on the identical
+   shuffle, sometimes a framing swings between 0% and 100% on the identical
    prompt. You are not reading a control's setting; you are sampling a process.
 
 You are not setting a policy. You are nudging the weights of a stochastic process
 whose response to your exact words you cannot predict or audit.
 
 > Aside: hardening against the *injection* channel (Module 0's channel A) is
-> worth doing as hygiene, but on this model you can't even measure it — the model
+> worth doing as hygiene, but on this model you can't even measure it, the model
 > already resisted the injection before and after. The prompt barely steers that
 > behavior in either direction; the model's training owns it. Another reason the
 > prompt is not where your security lives.
@@ -63,7 +63,7 @@ whose response to your exact words you cannot predict or audit.
 <summary>Hint 1</summary>
 
 Open `framing_demo.py` and read the four `FRAMINGS`. Confirm for yourself that
-the two policy lines (`POLICY`) are byte-for-byte identical in each — only the
+the two policy lines (`POLICY`) are byte-for-byte identical in each, only the
 surrounding text differs.
 
 </details>
@@ -81,7 +81,7 @@ Edit a framing, or add your own, and re-run. Try to find a wording that gives a
 ## The lesson
 
 A system prompt is an instruction to a non-deterministic system. It shifts the
-odds — sometimes all the way — but it cannot give you a guarantee, because:
+odds, sometimes all the way, but it cannot give you a guarantee, because:
 
 * the model may ignore it on any given sample (you just watched a clear rule get
   ignored 15/15);
@@ -89,23 +89,23 @@ odds — sometimes all the way — but it cannot give you a guarantee, because:
   literal rule;
 * a reword, a model update, or a longer context can all swing the outcome.
 
-Notice the *shape* of the failure: you did not forget the rule — you wrote it
+Notice the *shape* of the failure: you did not forget the rule, you wrote it
 down, and the model ignored it anyway under most framings. The problem was never
 a missing check (that would be ordinary appsec, fixed by adding it); the problem
 is a check that lives somewhere it is obeyed *probabilistically and
 unpredictably*.
 
-That makes prompt hardening — *including policy stated in the prompt* — a
+That makes prompt hardening, *including policy stated in the prompt*, a
 **mitigation**, not a **boundary**. The authorization rule belongs somewhere the
 model cannot argue with it and a reword cannot move it: in code. That is Module
 3. Keep the hardened prompt as defense-in-depth (Layer 2), layered *on top of*
 controls that hold no matter what the model emits.
 
 The tell: the right question is never "did my test pass?" It is "what happens on
-the run — or the framing, or the model version — I didn't see?" For a prompt, the
-honest answer is "I don't know" — the swing you just watched is that uncertainty
-made visible. For the deterministic boundary in Modules 2–3, the answer is
-"nothing — the action is refused regardless of the model."
+the run, or the framing, or the model version, I didn't see?" For a prompt, the
+honest answer is "I don't know", the swing you just watched is that uncertainty
+made visible. For the deterministic boundary in Modules 2-3, the answer is
+"nothing, the action is refused regardless of the model."
 
 ## Questions to Explore
 
@@ -115,7 +115,7 @@ made visible. For the deterministic boundary in Modules 2–3, the answer is
    the layers underneath, and improving normal-path behavior.)
 3. Module 0's harness reports **attempted** and **harmed**. The prompt could only
    ever move these *probabilistically*. Which module makes **harmed** 0 for every
-   input and every run — and how is that different from a 0% you got here?
+   input and every run, and how is that different from a 0% you got here?
 
 ---
 

@@ -1,7 +1,6 @@
 # Module 4: Probabilistic Mitigations (Bedrock Guardrails)
 
-> Layer 2. A useful control that you must place correctly — as the explicit
-> *counter-example* to a boundary.
+> Layer 2. A useful control — and a clear example of what is *not* a boundary.
 
 ## The idea
 
@@ -9,11 +8,11 @@ Bedrock Guardrails (and equivalents — Llama Guard, NeMo Guardrails, Azure AI
 Content Safety, OpenAI moderation) screen model inputs and outputs: denied
 topics, PII redaction, and prompt-injection / jailbreak detection.
 
-They help. They also make the workshop's central point by *contrast*: a guardrail
-is itself an ML classifier, so it is **non-deterministic**. It lowers the odds of
-a bad input/output; it cannot guarantee. If your thesis is "don't trust
-non-deterministic controls as boundaries," then a guardrail is the perfect thing
-to put in front of students as the control you must *not* rely on as a boundary.
+They help — and they also show, by contrast, why the boundary you built in
+Modules 2–3 matters. A guardrail is itself an ML classifier, so it is
+**non-deterministic**: it lowers the odds of a bad input or output, but it cannot
+guarantee. That makes it a mitigation you stack on top of the deterministic
+checks — never one you rely on to stop an irreversible action.
 
 ## Task
 

@@ -2,66 +2,40 @@ from __future__ import annotations
 
 import json
 import os
+import secrets
+import uuid
 from typing import Any
 
-from flask import Flask, render_template, request, jsonify
+import boto3
+from flask import Flask, jsonify, render_template, request, session
 
 import db
-from prompts import SYSTEM_PROMPT
-import tools as ecomm_tools
 
 app = Flask(__name__, template_folder="templates")
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex(32))
 
 ACTOR_CUSTOMER_ID = os.environ.get("ACTOR_CUSTOMER_ID", "cust_001")
-DB_PATH = os.environ.get("ECOMM_DB", "ecomm.sqlite")
-MODEL_ID = "eu.amazon.nova-2-lite-v1:0"
+REGION = os.environ.get("AWS_DEFAULT_REGION", "eu-central-1")
 PORT = int(os.environ.get("PORT", 5000))
+DB_PATH = os.environ.get("ECOMM_DB", "ecomm.sqlite")
 
-# Global agent instance
-_agent = None
+_agentcore_client: Any = None
 
 
-def _get_agent():
-    global _agent
-    if _agent is None:
-        try:
-            from strands import Agent  # type: ignore[import-not-found]
-
-            from strands.models import BedrockModel  # type: ignore[import-not-found]
-
-            model = BedrockModel(
-                model_id=os.environ.get("STRANDS_MODEL") or MODEL_ID,
-                max_tokens=3000,
-            )
-            _agent = Agent(
-                model=model,
-                system_prompt=SYSTEM_PROMPT,
-                callback_handler=None,
-                tools=[
-                    ecomm_tools.search_products,
-                    ecomm_tools.list_products,
-                    ecomm_tools.get_product_details,
-                    ecomm_tools.get_customer_profile,
-                    ecomm_tools.list_orders,
-                    ecomm_tools.refund_order,
-                    ecomm_tools.apply_discount,
-                    ecomm_tools.send_email,
-                ],
-            )
-        except Exception as e:
-            raise RuntimeError(f"Failed to initialize agent: {e}")
-    return _agent
+def _get_client() -> Any:
+    global _agentcore_client
+    if _agentcore_client is None:
+        _agentcore_client = boto3.client("bedrock-agentcore", region_name=REGION)
+    return _agentcore_client
 
 
 @app.route("/")
 def index():
-    """Serve the chat interface."""
     return render_template("index.html", actor_customer_id=ACTOR_CUSTOMER_ID)
 
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    """Handle chat messages and return agent responses."""
     try:
         data = request.get_json()
         message = data.get("message", "").strip()
@@ -69,44 +43,40 @@ def chat():
         if not message:
             return jsonify({"error": "Empty message"}), 400
 
-        agent = _get_agent()
-        result = agent(message, invocation_state={"actor_customer_id": ACTOR_CUSTOMER_ID, "db_path": DB_PATH})
+        if "session_id" not in session:
+            session["session_id"] = str(uuid.uuid4())
+        session_id = session["session_id"]
 
-        # Extract response from agent result (AgentResult object)
-        try:
-            # AgentResult is an object, not a dict
-            if hasattr(result, "message"):
-                msg = result.message
-            else:
-                msg = result
+        runtime_arn = os.environ["AGENTCORE_RUNTIME_ARN"]
+        payload = json.dumps(
+            {"prompt": message, "actorCustomerId": ACTOR_CUSTOMER_ID}
+        ).encode("utf-8")
 
-            content = msg.get("content") if isinstance(msg, dict) else getattr(msg, "content", []) or []
-            text = ""
-            json_data = None
+        response = _get_client().invoke_agent_runtime(
+            agentRuntimeArn=runtime_arn,
+            runtimeSessionId=session_id,
+            payload=payload,
+            qualifier="DEFAULT",
+        )
 
-            if isinstance(content, list) and content:
-                if isinstance(content[0], dict):
-                    text = content[0].get("text", "")
-                    json_data = content[0].get("json", None)
+        body = json.loads(response["response"].read())
+        text = body.get("result", "")
+        return jsonify({"response": text, "data": None})
 
-            return jsonify({"response": text, "data": json_data})
-        except Exception as e:
-            return jsonify({"response": f"Error processing response: {e}", "data": None})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except KeyError as exc:
+        return jsonify({"error": f"Missing configuration: {exc}"}), 500
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
 
 
 @app.route("/api/health", methods=["GET"])
 def health():
-    """Health check endpoint."""
     return jsonify({"status": "ok", "actor_customer_id": ACTOR_CUSTOMER_ID})
 
 
 def main():
-    """Run the web server."""
     db.initialize(DB_PATH)
-    print(f"Starting chat server...")
+    print("Starting chat server...")
     print(f"Logged in as: {ACTOR_CUSTOMER_ID}")
     print(f"Open http://localhost:{PORT} in your browser")
     app.run(debug=False, host="0.0.0.0", port=PORT)

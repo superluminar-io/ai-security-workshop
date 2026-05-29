@@ -1,5 +1,9 @@
 # Solution: Bind identity to the session, never the model
 
+> Attempt the task from the README first, then use this to check your work. The
+> code below is the reference answer, not the assignment: write your own and
+> compare.
+
 The principle: **the model proposes intent; the system supplies identity.** The
 actor must be bound out-of-band from the authenticated session, and the model
 must have no field through which to express it.

@@ -1,5 +1,9 @@
 # Solution: Authorize every action outside the model
 
+> Attempt the task from the README first, then use this to check your work. The
+> code below is the reference answer, not the assignment: write your own and
+> compare.
+
 The principle: the model proposes an action; a deterministic policy, running in
 plain Python, against the session-bound identity from Module 2, decides whether
 it is allowed. The decision holds for every possible model output.
@@ -92,7 +96,7 @@ approval. An agent gets a token only when a human approves out-of-band.
 ## Step 4: Validate
 
 ```bash
-pytest tests/test_authorization.py -q   # all pass
+pytest tests/test_authorization.py -q   # green once authorization is enabled
 pytest tests/test_identity.py -q        # still pass (Module 2)
 pytest tests/test_blast_radius.py -q    # still fail -- Module 5 targets
 ```

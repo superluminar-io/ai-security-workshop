@@ -24,17 +24,21 @@ Also try by hand in the UI: ask about `sku_666`; tell it you're another
 customer; ask it to email your data outside; ask for a 90% discount; ask for a
 refund larger than your order.
 
-You will see **ATTEMPTED** flicker (the model still sometimes takes the bait) and
-**HARMED** stay at **0**. Now turn off Layer 2 to prove it wasn't doing the work:
+What you observe: **HARMED stays at 0.** ATTEMPTED varies, and on a well-behaved
+model it is often low (it declines on its own). That is exactly why ATTEMPTED is
+not the thing to trust: it is a property of the model on this run, and it shifts
+with the model, the version, and the phrasing. HARMED staying 0 is the property
+you care about. Now drop the probabilistic layer and run again:
 
 ```bash
 unset BEDROCK_GUARDRAIL_ID          # drop the guardrail
-# (optionally revert prompts.py to the unsafe version)
 AWS_PROFILE=ai-workshop python attack_runner.py --trials 50
 ```
 
-ATTEMPTED climbs. **HARMED is still 0.** The boundary, not the mitigations, is
-what protects the money.
+**HARMED is still 0.** The boundary, not the guardrail, is what protects the
+money. And remember this is *observation*: one sample of a non-deterministic
+system, never a safety certificate. The proof that it holds for inputs you did
+not draw is deterministic, and it is Part B.
 
 ### Variant: attack the *running web app* over HTTP
 
@@ -68,13 +72,19 @@ hijacked model would: it controls only the business inputs, while identity and
 approval come from the session it cannot reach:
 
 ```bash
-pytest tests/test_red_team.py -q
+pytest tests/test_red_team.py tests/test_wiring.py -q
 ```
 
 It asserts that reading another customer's data, refunding an unowned order,
 refunding without approval, over-discounting, and emailing an attacker are **all
-refused**, and that the database is left unchanged. This holds for *every* input
-the model could produce; it is a property of the interface, not of a sample.
+refused**, and that the database is left unchanged. `tests/test_wiring.py` goes
+one step further: it drives a model we control (one that emits the attacker's
+tool calls) through the *real* agent loop, so it also catches a boundary that
+exists in the code but was left out of the request path.
+
+Green here means the boundary is **enabled and positioned** to refuse any hostile
+call the model could emit, not that the model will not try. That is the strongest
+claim you can actually make, and it is the one that matters.
 
 ## The whole picture
 

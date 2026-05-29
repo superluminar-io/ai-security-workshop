@@ -96,14 +96,19 @@ you cannot prevent.
 
 ## Two numbers to keep your eye on
 
-`attack_runner.py` reports **ATTEMPTED** and **HARMED**.
+`attack_runner.py` reports **ATTEMPTED** and **HARMED**. These are *observations*
+of a non-deterministic model, not a scoreboard:
 
-* Module 1 (prompt hardening) will lower ATTEMPTED, but watch it *flicker*, never
-  a reliable 0.
-* Modules 2-3 (the deterministic boundary) will pin **HARMED to 0**, on every
-  channel, regardless of how often the model is talked into trying.
+* Module 1 (prompt hardening) nudges ATTEMPTED, but watch it *flicker*, never a
+  reliable 0.
+* Once the deterministic boundary is enabled (Modules 2-3), you will watch HARMED
+  stay 0 across these runs.
 
-Watch those two numbers move apart as you go. That gap is the workshop.
+But a clean run is one sample, not a guarantee. What you can actually *verify* is
+separate: the per-module tests confirm the boundary is **enabled** (green = the
+control is in place, not green = the agent is safe). The demos show you why that
+distinction matters: you can prove the boundary is there; you can only ever watch
+the model.
 
 ## Questions to Explore
 

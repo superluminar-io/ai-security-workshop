@@ -1,5 +1,9 @@
 # Solution: Authorization as policy, evaluated by an engine
 
+> Attempt the task from the README first, then use this to check your work. The
+> code below is the reference answer, not the assignment: write your own and
+> compare.
+
 ## The policy (`cedar/policies.cedar`)
 
 ```cedar

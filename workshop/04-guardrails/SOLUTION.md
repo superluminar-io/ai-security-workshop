@@ -1,5 +1,9 @@
 # Solution: Attach a guardrail, and prove it isn't the boundary
 
+> Attempt the task from the README first, then use this to check your work. The
+> code below is the reference answer, not the assignment: write your own and
+> compare.
+
 ## Step 1: The wiring (already in place)
 
 `agent_setup.build_model()` reads the environment:

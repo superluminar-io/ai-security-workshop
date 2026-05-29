@@ -1,5 +1,9 @@
 # Solution: Harden the prompt, and understand why that's not enough
 
+> Attempt the task from the README first, then use this to check your work. The
+> code below is the reference answer, not the assignment: write your own and
+> compare.
+
 ## The change (`prompts.py`)
 
 The baseline prompt is an ordinary, reasonable assistant prompt, it says nothing

@@ -4,6 +4,11 @@
 > so the principle lands before you move it into an engine. By the end of this
 > module Cedar is the authorization engine the app actually uses.
 
+> **Optional advanced track.** The core path is Modules 0 to 5 and 7. This module
+> swaps your hand-rolled checks for a policy engine: valuable in production but
+> tangential to the AI-specific thesis. You can skip it on a first pass without
+> losing the through-line.
+
 ## Why
 
 The hand-rolled checks in `policy.py` are correct, but in production you usually

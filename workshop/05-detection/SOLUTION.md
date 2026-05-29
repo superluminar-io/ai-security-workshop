@@ -1,5 +1,9 @@
 # Solution: Bound the damage, log everything, watch for bursts
 
+> Attempt the task from the README first, then use this to check your work. The
+> code below is the reference answer, not the assignment: write your own and
+> compare.
+
 ## Step 1: Caps (`policy.py`)
 
 Add bounds as the last checks, after ownership and approval:
@@ -64,7 +68,7 @@ That is deliberate: Layer 3 is detection, not prevention.
 ## Step 4: Validate
 
 ```bash
-pytest tests/test_blast_radius.py -q   # now passes (the caps)
+pytest tests/test_blast_radius.py -q   # green once the caps are enabled
 pytest tests/test_detection.py -q      # audit completeness + anomaly count
 ```
 

@@ -1,0 +1,13 @@
+.venv/
+.git/
+.pytest_cache/
+__pycache__/
+*.sqlite
+*.pyc
+tests/
+workshop/
+docs/
+infra/
+cdk.json
+cdk.out/
+*.md

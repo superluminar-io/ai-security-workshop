@@ -150,21 +150,46 @@ FAILED tests/test_guardrails.py::test_refund_blocks_other_customers_order
 
 **Failing tests are expected at this point.** The tests encode the secure behavior you will implement during the workshop. If the tests run (even if they fail), your environment is set up correctly.
 
-### 7. Start the web interface
+### 7. Deploy to Bedrock AgentCore Runtime
+
+The agent runs in a managed AWS container. Deploy it with CDK (builds the image, pushes to ECR, creates the runtime):
 
 ```bash
-AWS_PROFILE=ai-workshop python server.py
+# One-time bootstrap per AWS account/region (creates CDK assets bucket)
+AWS_PROFILE=ai-workshop cdk bootstrap
+
+# Build container image, push to ECR, create AgentCore Runtime (~2–3 min first time)
+AWS_PROFILE=ai-workshop cdk deploy
 ```
 
-Open [http://localhost:5000](http://localhost:5000) in your browser. You should see a chat interface and be able to send messages to the agent.
+CDK outputs the runtime ARN when complete:
 
-If port 5000 is already in use:
+```
+Outputs:
+AiSecurityWorkshopStack.AgentRuntimeArn = arn:aws:bedrock-agentcore:eu-central-1:123456789012:runtime/ai-security-workshop-abc123
+```
+
+### 8. Start the web interface
+
+Start the local Flask server, pointing it at the deployed runtime:
 
 ```bash
-AWS_PROFILE=ai-workshop PORT=8080 python server.py
+AWS_PROFILE=ai-workshop AGENTCORE_RUNTIME_ARN=<arn-from-cdk-output> python server.py
 ```
 
-Then open [http://localhost:8080](http://localhost:8080) instead.
+Open [http://localhost:5000](http://localhost:5000). You should see the chat interface.
+
+If port 5000 is in use:
+
+```bash
+AWS_PROFILE=ai-workshop AGENTCORE_RUNTIME_ARN=<arn> PORT=8080 python server.py
+```
+
+After modifying `policy.py` or `tools.py`, redeploy:
+
+```bash
+AWS_PROFILE=ai-workshop cdk deploy   # rebuilds and redeploys (~60–90 s with layer cache)
+```
 
 > **macOS note:** port 5000 is used by AirPlay Receiver by default. Disable it in System Settings → General → AirDrop & Handoff, or use a different port.
 
@@ -174,9 +199,9 @@ Then open [http://localhost:8080](http://localhost:8080) instead.
 |---|---|
 | Install dependencies | `uv sync` **or** `pip install -r requirements.txt` (pick one) |
 | Activate virtualenv (macOS/Linux) | `source .venv/bin/activate` |
-| Start web UI | `AWS_PROFILE=ai-workshop python server.py` |
-| Start CLI (LLM mode) | `AWS_PROFILE=ai-workshop python app.py` |
-| Start CLI (no LLM) | `ENABLE_LLM=0 python app.py` |
+| Deploy agent to AgentCore | `AWS_PROFILE=ai-workshop cdk deploy` |
+| Start web UI | `AWS_PROFILE=ai-workshop AGENTCORE_RUNTIME_ARN=<arn> python server.py` |
+| Start CLI (command mode) | `python app.py` |
 | Run tests | `AWS_PROFILE=ai-workshop pytest -q` |
 | Reset database | `python reset_db.py` |
 

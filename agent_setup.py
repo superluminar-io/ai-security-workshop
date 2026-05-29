@@ -46,17 +46,19 @@ def build_model():
     )
 
 
-def build_agent(system_prompt: str | None = None):
+def build_agent(system_prompt: str | None = None, model=None):
     """Construct the Strands agent. Imported lazily so non-LLM code paths and the
     test suite do not require strands or AWS credentials.
 
-    `system_prompt` overrides the default prompt; the Module 1 framing demo uses
-    it to run the same attack under different wordings. Callers normally omit it.
+    `system_prompt` overrides the default prompt (the Module 1 framing demo uses
+    it). `model` overrides the model provider; tests pass a `ScriptedModel` to
+    drive the real agent loop deterministically with no Bedrock. Callers normally
+    omit both.
     """
     from strands import Agent
 
     return Agent(
-        model=build_model(),
+        model=model if model is not None else build_model(),
         system_prompt=SYSTEM_PROMPT if system_prompt is None else system_prompt,
         callback_handler=None,
         tools=list(AGENT_TOOLS),

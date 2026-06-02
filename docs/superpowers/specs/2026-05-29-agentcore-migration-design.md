@@ -65,7 +65,7 @@ Each browser tab gets a UUID session ID (stored in Flask session cookie). Flask 
 
 **SQLite lifecycle**: `agentcore_app.py` calls `db.initialize("/tmp/ecomm.sqlite")` once at startup. The database resets on container restart; no persistence is needed.
 
-**CDK L1 for AgentCore**: AgentCore Runtime has no CDK L2 constructs yet. The stack uses `CfnResource` with `AWS::Bedrock::AgentRuntime` (or the equivalent CloudFormation resource type). `DockerImageAsset` handles ECR repo creation, image build, and push automatically.
+**CDK L1 for AgentCore**: AgentCore Runtime has no CDK L2 constructs yet. The stack uses `CfnResource` with type `AWS::BedrockAgentCore::Runtime`. `DockerImageAsset` handles ECR repo creation, image build, and push automatically.
 
 **IAM role**: The AgentCore Runtime IAM role needs `bedrock:InvokeModel` (for Nova Lite) and `bedrock:InvokeModelWithResponseStream`. The CDK stack creates this role and attaches it to the runtime resource.
 

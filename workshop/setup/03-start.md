@@ -1,12 +1,10 @@
 # Start the Agent
 
-You now have all the tools and credentials in place. This page walks you through installing dependencies, verifying the setup with the test suite, and starting the agent web interface.
-
-You will need **two terminals** open in the repository root for the rest of the workshop.
+You now have all the tools and credentials in place. This page walks you through installing dependencies and verifying the setup with the test suite.
 
 ---
 
-## Terminal 1 — Install dependencies
+## Install dependencies
 
 **In your terminal**, from the repository root, run:
 
@@ -35,7 +33,7 @@ pip install -r requirements.txt
 
 ---
 
-## Terminal 1 — Verify with the test suite
+## Verify with the test suite
 
 Run the test suite to confirm everything is wired up correctly:
 
@@ -82,45 +80,12 @@ FAILED tests/test_guardrails.py::test_refund_blocks_other_customers_order
 
 ---
 
-## Terminal 2 — Start the agent web interface
-
-Open a **second terminal** in the repository root and run:
-
-```bash
-AWS_PROFILE=ai-workshop uv run python server.py
-```
-
-<details>
-<summary>Using pip / activated virtualenv</summary>
-
-```bash
-AWS_PROFILE=ai-workshop python server.py
-```
-
-</details>
-
-<details>
-<summary>Windows (PowerShell)</summary>
-
-```powershell
-$env:AWS_PROFILE="ai-workshop"; uv run python server.py
-```
-
-</details>
-
-**In your browser**, open [http://localhost:5000](http://localhost:5000). You should see a chat interface. Send a message to confirm the agent responds.
-
-> **macOS note:** Port 5000 may be in use by AirPlay Receiver. If so, use `PORT=8080 AWS_PROFILE=ai-workshop uv run python server.py` and open [http://localhost:8080](http://localhost:8080) instead.
-
----
-
 ## You're ready
 
-Keep both terminals running throughout the workshop:
+For the rest of the workshop you'll have three things open simultaneously:
 
-| Terminal | What it runs |
-|---|---|
-| Terminal 1 | Available for running tests and code changes |
-| Terminal 2 | The agent web interface at [localhost:5000](http://localhost:5000) |
+- **This site** ([localhost:5173](http://localhost:5173)) — workshop instructions, one module at a time
+- **The chat interface** ([localhost:5000](http://localhost:5000)) — the agent you'll be attacking and fixing
+- **Your code editor** — the cloned repository, where you'll make changes and run tests
 
 Head to **Explore the Agent** to begin.

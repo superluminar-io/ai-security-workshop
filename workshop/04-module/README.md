@@ -1,4 +1,4 @@
-# Module 4: Cross-Customer Data Access
+# Cross-Customer Data Access
 
 Throughout the previous modules, accessing another customer’s data was never restricted. You could look up `cust_002`’s profile, read their orders, and use that information to carry out refunds, discounts, and emails on their behalf — all while logged in as `cust_001`.
 

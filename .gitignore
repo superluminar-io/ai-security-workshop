@@ -11,6 +11,7 @@ wheels/
 
 # Node
 node_modules/
+.vite/
 
 # Local state
 .pytest_cache/

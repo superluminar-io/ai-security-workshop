@@ -1,0 +1,15 @@
+:root {
+  --bg: #060606;
+  --bg-alt: #0B0D0F;
+  --bg-card: #151515;
+  --ac: #01FEB6;
+  --ac-dim: rgba(1, 254, 182, 0.09);
+  --ac-bdr: rgba(1, 254, 182, 0.22);
+  --text: #EDEAE6;
+  --text-muted: rgba(237, 234, 230, 0.54);
+  --bdr: rgba(255, 255, 255, 0.09);
+
+  --font-headline: 'Fira Sans', sans-serif;
+  --font-body: 'Source Sans 3', sans-serif;
+  --font-code: 'Fira Code', monospace;
+}

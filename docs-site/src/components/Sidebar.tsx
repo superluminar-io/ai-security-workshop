@@ -17,7 +17,9 @@ export function Sidebar() {
               to={`/module/${m.id}`}
               className={`sidebar__module-header${isExpanded ? ' sidebar__module-header--active' : ''}`}
             >
-              <span className="sidebar__module-number">Module {m.number}</span>
+              <span className="sidebar__module-number">
+                {m.id === 'setup' ? 'Setup' : `Module ${m.number}`}
+              </span>
               <span className="sidebar__module-title">{m.title}</span>
             </Link>
             {isExpanded && (

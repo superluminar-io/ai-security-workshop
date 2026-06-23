@@ -16,12 +16,22 @@ The app is **supposed to start insecure**. The accompanying tests encode the **d
 | Requirement | Version | Notes |
 |---|---|---|
 | Python | 3.11 or higher | |
+| Node.js | 18 or higher | For the workshop docs site |
 | `uv` or `pip` | — | `uv` is recommended; `pip` works too |
 | Git | any recent version | |
 | AWS CLI | v2 | For configuring your IAM credentials |
 | A code editor | — | VS Code recommended |
 
-### 1. Python 3.11+
+### 1. Node.js 18+
+
+The workshop instructions are served as a local website. You need Node.js to run it.
+
+- **macOS** (via Homebrew): `brew install node`
+- **All platforms**: download from [nodejs.org](https://nodejs.org/)
+
+Verify: `node --version` — expected output: `v18.x.x` or higher.
+
+### 2. Python 3.11+
 
 Check your current version:
 
@@ -36,7 +46,7 @@ If the version shown is below 3.11, install a newer one.
 
 You can also use [pyenv](https://github.com/pyenv/pyenv) to manage multiple Python versions. The repository includes a `.python-version` file that pins the project to Python 3.11.
 
-### 2. Package manager — `uv` (recommended) or `pip`
+### 3. Package manager — `uv` (recommended) or `pip`
 
 You can use either `uv` or `pip` to install dependencies. `uv` is recommended — it is significantly faster and manages the virtual environment for you — but `pip` works fine if you prefer.
 
@@ -54,7 +64,7 @@ Verify: `uv --version` — documentation: [docs.astral.sh/uv](https://docs.astra
 
 If you prefer to use `pip`, no additional installation is needed — it comes with Python.
 
-### 3. AWS CLI v2
+### 4. AWS CLI v2
 
 The workshop agent calls Amazon Bedrock, so you need the AWS CLI to configure your credentials.
 
@@ -62,7 +72,7 @@ Install instructions by platform: [docs.aws.amazon.com/cli/latest/userguide/gett
 
 Verify: `aws --version` — expected output: `aws-cli/2.x.x ...`
 
-### 4. Configure your AWS IAM credentials
+### 5. Configure your AWS IAM credentials
 
 You will be given an IAM user with access to the Bedrock model used in this workshop. You will receive:
 
@@ -95,7 +105,7 @@ aws sts get-caller-identity --profile ai-workshop
 You should see a JSON response with your account and user ARN. If you see an error, double-check the keys and region.
 
 
-### 5. Install dependencies
+### 6. Install dependencies
 
 From inside the repository directory, run one of the following depending on your chosen package manager:
 
@@ -121,7 +131,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 6. Verify the setup
+### 7. Verify the setup
 
 Activate the virtual environment:
 
@@ -160,7 +170,20 @@ FAILED tests/test_guardrails.py::test_refund_blocks_other_customers_order
 
 **Failing tests are expected at this point.** The tests encode the secure behavior you will implement during the workshop. If the tests run (even if they fail), your environment is set up correctly.
 
-### 7. Start the web interface
+### 8. Start the workshop docs site
+
+The workshop instructions are served as a local website. Open a terminal in the `docs-site/` directory and run:
+
+```bash
+npm install
+npm run dev
+```
+
+Then open [http://localhost:5173](http://localhost:5173) in your browser. **Use this site for all workshop instructions** — it guides you through each module step by step.
+
+Keep this terminal running throughout the workshop.
+
+### 9. Start the web interface
 
 ```bash
 AWS_PROFILE=ai-workshop python server.py
@@ -191,7 +214,8 @@ Then open [http://localhost:8080](http://localhost:8080) instead.
 
 | Task | Command |
 |---|---|
-| Install dependencies | `uv sync` **or** `pip install -r requirements.txt` (pick one) |
+| Start workshop docs | `cd docs-site && npm run dev` → [localhost:5173](http://localhost:5173) |
+| Install Python deps | `uv sync` **or** `pip install -r requirements.txt` (pick one) |
 | Activate virtualenv (macOS/Linux) | `source .venv/bin/activate` |
 | Start web UI | `AWS_PROFILE=ai-workshop python server.py` |
 | Start CLI (LLM mode) | `AWS_PROFILE=ai-workshop python app.py` |
@@ -218,6 +242,7 @@ There is a difference between a test *failing* (assertion not met — expected) 
 
 ## Repository tour
 
+- `docs-site/`: Workshop instructions site (React + Vite) — run with `npm run dev`
 - `app.py`: CLI entrypoint (optionally uses a Strands `Agent`)
 - `server.py`: Web server with Flask (serves chat UI on http://localhost:5000)
 - `reset_db.py`: Script to reset the database to initial state
